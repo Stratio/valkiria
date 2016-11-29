@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/stratio/valkiria",
+	"ImportPath": "github.com/Stratio/valkiria",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v70",
 	"Packages": [

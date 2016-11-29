@@ -3,20 +3,20 @@
 Valkiria is an open source project based on http://principlesofchaos.org/ concepts an inspired by Netflix ChaosMonkey tool.
 It is designed to be compatible with Stratio PAAS but can work with any cluster of Mesos.
 Can kill processes randomly or selectively so it is a great tool for:
-    * Test high availability (HA)
-    * Test fault tolerance (FT)
-    * Prediction of error cases in the underlying technologies
-    * Benchmarking of HA and FT capabilities of different distributed architectures
-    * Sizing productive environments
-    * Understand environments
+> Test high availability (HA)
+> Test fault tolerance (FT)
+> Prediction of error cases in the underlying technologies
+> Benchmarking of HA and FT capabilities of different distributed architectures
+> Sizing productive environments
+> Understand environments
 
 
 ## Modules
 
-Valkiria Chaos
-Valkiria Admin - coming soon
-Valkiria Security - coming soon
-Valkiria Metrics - coming soon
+> Valkiria Chaos
+> Valkiria Admin - coming soon
+> Valkiria Security - coming soon
+> Valkiria Metrics - coming soon
 
 
 ## Architecture
@@ -31,6 +31,7 @@ kills task via 'kill' and kills docker task via 'docker kill'.
 
 ```console
 $ go get -u github.com/stratio/valkiria
+$ make env
 $ make
 ```
 

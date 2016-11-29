@@ -6,7 +6,7 @@ import (
 	"os"
 	"net/http"
 	"golang.org/x/net/context"
-	r "github.com/stratio/valkiria/routes"
+	r "github.com/Stratio/valkiria/routes"
 )
 
 func Run(name string, commands ...cli.Command) {

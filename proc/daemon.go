@@ -1,7 +1,7 @@
 package proc
 
 import (
-	"github.com/stratio/valkiria/dbus"
+	"github.com/Stratio/valkiria/dbus"
 	log "github.com/Sirupsen/logrus"
 	"time"
 )

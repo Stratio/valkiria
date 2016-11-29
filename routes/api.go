@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"golang.org/x/net/context"
 	"net/http"
-	"github.com/stratio/valkiria/proc"
+	"github.com/Stratio/valkiria/proc"
 	"strconv"
 	log "github.com/Sirupsen/logrus"
 	"time"

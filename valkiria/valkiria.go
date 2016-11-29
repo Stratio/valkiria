@@ -3,7 +3,7 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
-	"github.com/stratio/valkiria/routes"
+	"github.com/Stratio/valkiria/routes"
 	"golang.org/x/net/context"
 	"os"
 )
