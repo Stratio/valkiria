@@ -1,5 +1,3 @@
-ALLPACKAGE = ./...
-PACKAGE = ./valkiria ./routes ./proc ./dbus
 LOGLEVEL = DEBUG
 VERSION = 0.0.1-SNAPSHOT
 BUILD = master
@@ -9,7 +7,7 @@ compile:
 	bin/compile.sh
 
 test:
-	godep go test ${PACKAGE}
+	bin/test.sh
 
 package:
 	bin/package.sh
@@ -19,3 +17,6 @@ docker:
 
 deploy:
 	bin/deploy.sh
+
+clean:
+	rm -Rf target
