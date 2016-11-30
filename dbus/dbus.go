@@ -2,7 +2,6 @@ package dbus
 
 import (
 	"github.com/godbus/dbus"
-	"os"
 	log "github.com/Sirupsen/logrus"
 	"regexp"
 	"github.com/pkg/errors"
@@ -28,28 +27,19 @@ var (
 	DbusInstance DSbusStruct
 )
 
-func init(){
-	err := initDefaultSharedObjectService()
-	if err != nil {
-		log.Fatalf("dbus.init - Error initializating D-Bus system. Stop the program. FATAL: %v", err)
-		os.Exit(-1)
-	}
-
-}
-
 type DSbusStruct struct {
 	c *dbus.Conn
 	o dbus.BusObject
 }
 
-func initDefaultSharedObjectService () (err error){
+func (d *DSbusStruct) NewDBus () (err error) {
 	log.Debug("dbus.initDefaultSharedObjectService")
 	if DbusInstance.c, err = dbus.SystemBus(); err != nil{
 		log.Infof("dbus.initDefaultSharedObjectService - ERROR: %v", err)
 	} else {
 		DbusInstance.o = DbusInstance.c.Object(service, object)
 	}
-	log.Debugf("dbus.initDefaultSharedObjectService - RES: %v", DbusInstance.c.Names())
+	log.Debugf("dbus.initDefaultSharedObjectService - RES: EMPTY RESULT")
 	return
 }
 
