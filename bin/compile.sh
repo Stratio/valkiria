@@ -17,4 +17,3 @@ ln -s $PWD/routes /$VIRTUALENV/src/github.com/Stratio/valkiria/routes
 ln -s $PWD/proc $VIRTUALENV/src/github.com/Stratio/valkiria/proc
 ln -s $PWD/vendor $VIRTUALENV/src/github.com/Stratio/valkiria/vendor
 cd $GOPATH/src/github.com/Stratio/valkiria
-$GOPATH/bin/godep go install -v -ldflags "-w $LDFLAGS" $ALLPACKAGE

@@ -9,18 +9,15 @@ import (
 )
 
 var (
-	Version = "0.0.1"
-	Build   = "HEAD"
+	Version string
+	Build   string
 )
 
 func main() {
-	log.SetLevel(log.DebugLevel)
-	log.Info("Starting Valkiria...")
-	log.Infof("Version: %v - Build: %v", Version, Build)
 	serveCommand := cli.Command{
-		Name:      "serve",
-		ShortName: "s",
-		Usage:     "Serve the API",
+		Name:      "agent",
+		ShortName: "a",
+		Usage:     "Serve Agent API",
 		Flags:     []cli.Flag{FlAddr},
 		Action:    action(serveAction),
 	}
@@ -40,6 +37,11 @@ func action(f func(c *cli.Context) error) func(c *cli.Context) {
 func serveAction(c *cli.Context) error {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, "addr", c.String("addr"))
-
+	level, err := log.ParseLevel(c.String("log"))
+	if err != nil {
+		log.Error("PANIC: Level not found. " + err.Error())
+		os.Exit(1)
+	}
+	log.SetLevel(level)
 	return ServeCmd(c, ctx, routes.Routes)
 }
