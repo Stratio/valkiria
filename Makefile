@@ -25,4 +25,4 @@ cover:
 	godep go tool cover -html=coverage.out
 
 fmt:
-	rm -Rf target
+	godep go fmt ./dbus

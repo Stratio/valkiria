@@ -1,26 +1,26 @@
 package dbus
 
 import (
-	"github.com/godbus/dbus"
 	log "github.com/Sirupsen/logrus"
-	"regexp"
+	"github.com/godbus/dbus"
 	"github.com/pkg/errors"
+	"regexp"
 )
 
 const (
-	service = "org.freedesktop.systemd1"
-	object = "/org/freedesktop/systemd1"
-	getMachineId = "org.freedesktop.DBus.Peer.GetMachineId"
-	getUnit = "org.freedesktop.systemd1.Manager.GetUnit"
-	startUnit = "org.freedesktop.systemd1.Manager.StartUnit"
-	stopUnit = "org.freedesktop.systemd1.Manager.StopUnit"
-	killUnit = "org.freedesktop.systemd1.Manager.KillUnit"
-	getUnitproperties = "org.freedesktop.systemd1.Service.MainPID"
-	stopMode = "replace"
-	killMode = "main"
-	startMode = "replace"
-	killSignall int32 = 9
-	systemdPathRegex = `^/[a-zA-Z0-9/_\-.]*$`
+	service                 = "org.freedesktop.systemd1"
+	object                  = "/org/freedesktop/systemd1"
+	getMachineId            = "org.freedesktop.DBus.Peer.GetMachineId"
+	getUnit                 = "org.freedesktop.systemd1.Manager.GetUnit"
+	startUnit               = "org.freedesktop.systemd1.Manager.StartUnit"
+	stopUnit                = "org.freedesktop.systemd1.Manager.StopUnit"
+	killUnit                = "org.freedesktop.systemd1.Manager.KillUnit"
+	getUnitproperties       = "org.freedesktop.systemd1.Service.MainPID"
+	stopMode                = "replace"
+	killMode                = "main"
+	startMode               = "replace"
+	killSignall       int32 = 9
+	systemdPathRegex        = `^/[a-zA-Z0-9/_\-.]*$`
 )
 
 var (
@@ -32,9 +32,9 @@ type DSbusStruct struct {
 	o dbus.BusObject
 }
 
-func (d *DSbusStruct) NewDBus () (err error) {
+func (d *DSbusStruct) NewDBus() (err error) {
 	log.Debug("dbus.initDefaultSharedObjectService")
-	if DbusInstance.c, err = dbus.SystemBus(); err != nil{
+	if DbusInstance.c, err = dbus.SystemBus(); err != nil {
 		log.Infof("dbus.initDefaultSharedObjectService - ERROR: %v", err)
 	} else {
 		DbusInstance.o = DbusInstance.c.Object(service, object)
@@ -43,7 +43,7 @@ func (d *DSbusStruct) NewDBus () (err error) {
 	return
 }
 
-func (d *DSbusStruct) GetMachineId ()(r string, err error){
+func (d *DSbusStruct) GetMachineId() (r string, err error) {
 	log.Debug("dbus.GetMachineId")
 	err = d.o.Call(getMachineId, 0).Store(&r)
 	if err != nil {
@@ -54,7 +54,7 @@ func (d *DSbusStruct) GetMachineId ()(r string, err error){
 }
 
 // replace, fail, isolate, ignore-dependencies, ignore-requirements
-func (d *DSbusStruct) StopUnit (unitName string) (err error){
+func (d *DSbusStruct) StopUnit(unitName string) (err error) {
 	log.Debug("dbus.StopUnit")
 	var path dbus.ObjectPath
 	err = d.o.Call(stopUnit, 0, unitName, stopMode).Store(&path)
@@ -65,7 +65,7 @@ func (d *DSbusStruct) StopUnit (unitName string) (err error){
 	return
 }
 
-func (d *DSbusStruct) KillUnit (unitName string) (err error){
+func (d *DSbusStruct) KillUnit(unitName string) (err error) {
 	log.Debug("dbus.KillUnit")
 	err = d.o.Call(killUnit, 0, unitName, killMode, killSignall).Store()
 	if err != nil {
@@ -76,7 +76,7 @@ func (d *DSbusStruct) KillUnit (unitName string) (err error){
 }
 
 // replace, fail, isolate, ignore-dependencies, ignore-requirements
-func (d *DSbusStruct) StartUnit (unitName string) (err error){
+func (d *DSbusStruct) StartUnit(unitName string) (err error) {
 	log.Debug("dbus.StartUnit")
 	var path dbus.ObjectPath
 	if err = d.o.Call(startUnit, 0, unitName, startMode).Store(&path); err != nil {
@@ -86,7 +86,7 @@ func (d *DSbusStruct) StartUnit (unitName string) (err error){
 	return
 }
 
-func (d *DSbusStruct) GetUnit (unitName string)(res string, err error){
+func (d *DSbusStruct) GetUnit(unitName string) (res string, err error) {
 	log.Debug("dbus.GetUnit")
 	var unitPath dbus.ObjectPath
 	conn := d.o.Call(getUnit, 0, unitName)
@@ -100,7 +100,7 @@ func (d *DSbusStruct) GetUnit (unitName string)(res string, err error){
 	return
 }
 
-func (d *DSbusStruct) GetUnitPid (unitPath string)(res uint32, err error){
+func (d *DSbusStruct) GetUnitPid(unitPath string) (res uint32, err error) {
 	log.Debug("dbus.GetUnitPid")
 	var validPath = regexp.MustCompile(systemdPathRegex)
 	if b := validPath.Match([]byte(unitPath)); b {
