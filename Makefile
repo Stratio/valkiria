@@ -1,8 +1,3 @@
-LOGLEVEL = DEBUG
-VERSION = 0.0.1-SNAPSHOT
-BUILD = master
-LDFLAGS = -X main.Version=${VERSION} -X main.Build=${BUILD} -X main.LOGLEVEL=${LOGLEVEL}
-
 compile:
 	bin/compile.sh
 

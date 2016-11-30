@@ -2,4 +2,5 @@
 
 VIRTUALENV=$PWD/target
 export GOPATH=$VIRTUALENV
-tar -zcvf valkiria.tar.gz $GOPATH/bin/valkiria
+VERSION=$(cat VERSION)
+tar -zcvf $GOPATH/bin/valkiria-${VERSION}.tar.gz $GOPATH/bin/valkiria
