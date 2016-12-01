@@ -6,6 +6,7 @@ import (
 	"github.com/Stratio/valkiria/routes"
 	"golang.org/x/net/context"
 	"os"
+	"github.com/Stratio/valkiria/dbus"
 )
 
 var (
@@ -20,6 +21,10 @@ func main() {
 		Usage:     "Serve Agent API",
 		Flags:     []cli.Flag{FlAddr},
 		Action:    action(serveAction),
+	}
+	if err := dbus.DbusInstance.NewDBus(); err != nil {
+		log.Fatalf("Error initializating D-Bus system. Stop the program. FATAL: %v", err)
+		os.Exit(-1)
 	}
 	Run("valkiria", serveCommand)
 }

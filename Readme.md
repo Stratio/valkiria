@@ -19,6 +19,8 @@ Can kill processes randomly or selectively so it is a great tool for:
 * Valkiria Metrics - coming soon
 
 ## Dependencies
+* Systemd init system
+* DBus
 
 ## Architecture
 
@@ -39,9 +41,11 @@ $ make install
 ## Usage
 
 ```console
-$ valkiria orchestrator ip=10.200.27.1 log=INFO
-$ valkiria agent ip=10.200.27.2 log=INFO
+$ valkiria orchestrator ip=10.200.27.1:9050 log=INFO
+$ valkiria agent ip=10.200.27.2:9050 log=INFO
 ```
 
 
-## Test environment
+## Warning
+Do not use in production, is in Alpha version. You need to run the agent process with root privileges. 
+To run the project test is also necessary to have root privileges.
