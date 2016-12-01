@@ -47,4 +47,5 @@ $ valkiria agent ip=10.200.27.2:9050 log=INFO
 
 
 ## Warning
-Do not use in production, is in Alpha version. You need to run the agent process with root privileges. For tests of several packages is also necessary, else will be skipped.
+Do not use in production, is in Alpha version. You need to run the agent process with root privileges. 
+To run the project test is also necessary to have root privileges.
