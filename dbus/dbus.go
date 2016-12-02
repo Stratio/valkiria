@@ -102,10 +102,11 @@ func (d *DSbusStruct) GetUnit(unitName string) (res string, err error) {
 
 func (d *DSbusStruct) GetUnitPid(unitPath string) (res uint32, err error) {
 	log.Debug("dbus.GetUnitPid")
+	var variant dbus.Variant
 	var validPath = regexp.MustCompile(systemdPathRegex)
 	if b := validPath.Match([]byte(unitPath)); b {
 		obj := d.c.Object(service, dbus.ObjectPath(unitPath))
-		variant, err := obj.GetProperty(getUnitproperties)
+		variant, err = obj.GetProperty(getUnitproperties)
 		if err != nil {
 			log.Infof("dbus.GetUnitPid - ERROR: %v", err.Error())
 			return res, err

@@ -1,4 +1,4 @@
 .idea
 */**/.gitignore
 target
-coverage.out
+coverage*.out
