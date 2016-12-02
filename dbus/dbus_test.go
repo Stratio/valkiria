@@ -2,16 +2,12 @@ package dbus
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"io/ioutil"
+	"github.com/Stratio/valkiria/test"
 	"os"
-	"os/user"
-	"strings"
 	"testing"
 )
 
 const (
-	level                   = log.DebugLevel
-	uid                     = "0"
 	unit                    = "test.service"
 	fakeUnit                = "fakeUnit.service"
 	fakePath                = "/fake/path"
@@ -21,7 +17,6 @@ const (
 )
 
 var (
-	testFile                           = []byte("[Unit]\nDescription=test\n\n[Service]\nExecStart=/bin/bash -c 'while true; do echo hello; sleep 2; done'\nRestart=always\n")
 	testInitDefaultSharedObjectService = func(t *testing.T) {
 		var err = DbusInstance.NewDBus()
 		if err != nil {
@@ -95,7 +90,10 @@ var (
 )
 
 func TestDBusLib(t *testing.T) {
-	setup(t)
+	log.SetLevel(test.Level)
+	test.SetupDBusTest(t)
+	defer test.TearDownDBusTest(t)
+	startDBusUnit(t)
 	t.Run("testInitDefaultSharedObjectService", testInitDefaultSharedObjectService)
 	t.Run("testGetMachineId", testGetMachineId)
 	t.Run("testStartUnit", testStartUnit)
@@ -103,40 +101,13 @@ func TestDBusLib(t *testing.T) {
 	t.Run("testGetUnitPid", testGetUnitPid)
 	t.Run("testKillUnit", testKillUnit)
 	t.Run("testStopUnit", testStopUnit)
-	tearDown(t)
 }
 
-func setup(t *testing.T) {
-	skipTesAll(t)
-	addTestService(t)
-	log.SetLevel(level)
-}
-
-func tearDown(t *testing.T) {
-	if err := os.Remove(unitServiceLink); err != nil {
-		t.Fatalf("Can not delete test link. %v", err)
-	}
-	if err := os.Remove(unitServicePath); err != nil {
-		t.Fatalf("Can not delete test path. %v", err)
-	}
-}
-
-func skipTesAll(t *testing.T) {
-	if user, _ := user.Current(); !strings.EqualFold(uid, user.Uid) {
-		t.Skipf("User must be root. Execute test with root privileges.")
-	}
+//WARNING: this code can produce import cycle not allowed in test. dont move to test_util
+// If it is necessary to make changes in the tests, make changes in all the tests impacted
+func startDBusUnit(t *testing.T) {
 	if err := DbusInstance.NewDBus(); err != nil {
 		t.Skipf("Error initializating D-Bus system. Stop the program. FATAL: %v", err)
-	}
-}
-
-func addTestService(t *testing.T) {
-	if err := ioutil.WriteFile(unitServicePath, testFile, 0644); err != nil {
-		t.Skipf("Can not create test file. %v", err.Error())
-	}
-	if err := os.Link(unitServicePath, unitServiceLink); err != nil {
-		os.Remove(unitServicePath)
-		t.Skipf("Can not create test link. %v", err.Error())
 	}
 	if err := DbusInstance.StartUnit(unit); err != nil {
 		os.Remove(unitServiceLink)
