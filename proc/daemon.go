@@ -1,19 +1,19 @@
 package proc
 
 import (
-	"github.com/Stratio/valkiria/dbus"
 	log "github.com/Sirupsen/logrus"
+	"github.com/Stratio/valkiria/dbus"
 	"time"
 )
 
-type daemon struct{
-	Pid uint32
-	Name string
-	Path string
+type daemon struct {
+	Pid            uint32
+	Name           string
+	Path           string
 	ChaosTimeStamp int
 }
 
-func (d *daemon) Kill () (err error){
+func (d *daemon) Kill() (err error) {
 	log.Debug("proc.daemon.Kill")
 	d.ChaosTimeStamp = time.Now().UTC().Nanosecond()
 	log.Infof("proc.daemon.Kill - '%v' '%v' '%v' '%v'", d.Pid, d.Name, d.Path, d.ChaosTimeStamp)
@@ -24,18 +24,17 @@ func (d *daemon) Kill () (err error){
 	return
 }
 
-func ReadAllDaemons (listDaemons []string) (res []daemon, err error){
+func ReadAllDaemons(listDaemons []string) (res []daemon, err error) {
 	log.Debug("proc.daemon.ReadAllDaemons")
 	for _, d := range listDaemons {
 		if path, err := dbus.DbusInstance.GetUnit(d); err == nil {
-			if pid, err := dbus.DbusInstance.GetUnitPid(path); err == nil{
+			if pid, _ := dbus.DbusInstance.GetUnitPid(path); err == nil {
 				res = append(res, daemon{Pid: pid, Name: d, Path: path})
 				log.Debugf("proc.daemon.ReadAllDaemons - append - '%v' '%v' '%v'", d, pid, path)
 			}
+		} else {
+			log.Infof("proc.daemon.ReadAllDaemons - ERROR: '%v'", err.Error())
 		}
-	}
-	if err != nil {
-		log.Infof("proc.daemon.ReadAllDaemons - ERROR: '%v'", err.Error())
 	}
 	log.Debugf("proc.daemon.ReadAllDaemons - lenDaemon: '%v'", len(res))
 	return

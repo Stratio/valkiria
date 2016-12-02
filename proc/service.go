@@ -1,32 +1,31 @@
 package proc
 
 import (
-	"io/ioutil"
-	procinfo "github.com/c9s/goprocinfo/linux"
 	log "github.com/Sirupsen/logrus"
-	"time"
-	"strings"
+	procinfo "github.com/c9s/goprocinfo/linux"
+	"io/ioutil"
 	"os"
+	"strings"
 	"syscall"
+	"time"
 )
 
 const (
 	procDirectory = "/proc/"
-	statusFile = "/status"
-	abc = "abcdefghijklmnopqrstuvwxyz"
-
+	statusFile    = "/status"
+	abc           = "abcdefghijklmnopqrstuvwxyz"
 )
 
-type service struct{
-	Pid uint64
-	Name string
-	TaskName string
-	Ppid int64
-	Executor bool
+type service struct {
+	Pid            uint64
+	Name           string
+	TaskName       string
+	Ppid           int64
+	Executor       bool
 	ChaosTimeStamp int
 }
 
-func (s *service) Kill () (err error){
+func (s *service) Kill() (err error) {
 	log.Debug("proc.service.Kill")
 	s.ChaosTimeStamp = time.Now().UTC().Nanosecond()
 	log.Infof("proc.service.Kill - '%v' '%v' '%v' '%v' '%v'", s.Pid, s.Name, s.Ppid, s.TaskName, s.ChaosTimeStamp)
@@ -37,19 +36,19 @@ func (s *service) Kill () (err error){
 	return
 }
 
-func ReadAllChildProcess (daemons []daemon) (aux []service, err error){
+func ReadAllChildProcess(daemons []daemon) (aux []service, err error) {
 	var ser []service
 	for _, d := range daemons {
 		if d.Pid > 0 {
 			ser, err = readAllChildServices(int64(d.Pid), []string{mesosAgentLogrotate}, true)
-			for _ , s := range ser {
+			for _, s := range ser {
 				aux = append(aux, s)
 			}
 		}
 	}
 	for _, s := range ser {
 		ser, err = readAllChildServices(int64(s.Pid), []string{}, false)
-		for _ , s := range ser {
+		for _, s := range ser {
 			aux = append(aux, s)
 		}
 	}
@@ -57,11 +56,11 @@ func ReadAllChildProcess (daemons []daemon) (aux []service, err error){
 }
 
 // Read all child process for parent pid
-func readAllChildServices(ppid int64, blackListServices []string, setExecutor bool) (res []service, err error){
+func readAllChildServices(ppid int64, blackListServices []string, setExecutor bool) (res []service, err error) {
 	log.Debug("proc.service.ReadAllServices")
 	if files, err := ioutil.ReadDir(procDirectory); err == nil {
 		for _, file := range files {
-			if ! strings.ContainsAny(file.Name(), abc){
+			if !strings.ContainsAny(file.Name(), abc) {
 				status, err := procinfo.ReadProcessStatus(procDirectory + file.Name() + statusFile)
 				if err != nil {
 					log.Infof("Error reading file: '%v'. ERROR: '%v'", file.Name(), err.Error())
@@ -84,12 +83,13 @@ func readAllChildServices(ppid int64, blackListServices []string, setExecutor bo
 	return
 }
 
-func isInBlackList (name string, blackListServices []string) (res bool){
+func isInBlackList(name string, blackListServices []string) (res bool) {
 	log.Debug("proc.service.isInBlackList")
 	for _, blackService := range blackListServices {
-		if strings.Compare(name, blackService) == 0 {res = true}
+		if strings.Compare(name, blackService) == 0 {
+			res = true
+		}
 	}
 	log.Debugf("proc.service.isInBlackList - '%v' blcakList '%v'", name, res)
 	return
 }
-

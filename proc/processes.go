@@ -1,24 +1,24 @@
 package proc
 
 import (
-	"math/rand"
-	log "github.com/Sirupsen/logrus"
-	"strconv"
-	"time"
-	"strings"
 	"errors"
+	log "github.com/Sirupsen/logrus"
+	"math/rand"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const (
-	mesosMaster = "dcos-mesos-master.service"
-	mesosAgentPublic = "dcos-mesos-slave-public.service"
-	mesosAgent = "dcos-mesos-slave.service"
-	dcosMarathon = "dcos-marathon.service"
-	dcosZookeeper = "dcos-exhibitor.service"
+	mesosMaster         = "dcos-mesos-master.service"
+	mesosAgentPublic    = "dcos-mesos-slave-public.service"
+	mesosAgent          = "dcos-mesos-slave.service"
+	dcosMarathon        = "dcos-marathon.service"
+	dcosZookeeper       = "dcos-exhibitor.service"
 	mesosAgentLogrotate = "mesos-logrotate"
 )
 
-const  (
+const (
 	daemonEnum = iota
 	dockerEnum
 	serviceEnum
@@ -32,9 +32,9 @@ type Processes struct {
 }
 
 // Load processes from SO
-func (p *Processes) LoadProcesses () (err error){
+func (p *Processes) LoadProcesses() (err error) {
 	p.Daemons, err = ReadAllDaemons([]string{mesosMaster, mesosAgent, dcosMarathon, dcosZookeeper, mesosAgentPublic})
-	p.Dockers, err = ReadAllDockers()
+	p.Dockers, err = ReadAllDockers("", nil)
 	p.Services, err = ReadAllChildProcess(p.Daemons)
 	return
 }
@@ -44,7 +44,7 @@ func (p *Processes) LoadProcesses () (err error){
 // serviceInt is the number of services that can kill in  Chaos time
 // ddockerInt is the number of dockers that can kill in  Chaos time
 // return error if apply
-func (p *Processes) Chaos (daemonInt int, serviceInt int, dockerInt int) (err error){
+func (p *Processes) Chaos(daemonInt int, serviceInt int, dockerInt int) (err error) {
 	log.Debug("proc.processes.Chaos")
 	var res = Session{}
 	res.Id = int(time.Now().Unix())
@@ -65,7 +65,7 @@ func (p *Processes) Chaos (daemonInt int, serviceInt int, dockerInt int) (err er
 	for i := 0; i < serviceInt && i < len(p.Services); i++ {
 		log.Debug("proc.processes.Chaos - services")
 		rad := rand.Intn(len(p.Services))
-		log.Debug("proc.processes.Chaos - services - random " +  strconv.Itoa(int(rad)))
+		log.Debug("proc.processes.Chaos - services - random " + strconv.Itoa(int(rad)))
 		err = p.Services[rad].Kill()
 		res.Service = append(res.Service, p.Services[rad])
 		p.Services = append(p.Services[:i], p.Services[i+1:]...)
@@ -77,7 +77,7 @@ func (p *Processes) Chaos (daemonInt int, serviceInt int, dockerInt int) (err er
 	for i := 0; i < dockerInt && i < len(p.Dockers); i++ {
 		log.Debug("proc.processes.Chaos - dockers")
 		rad := rand.Intn(len(p.Dockers))
-		log.Debug("proc.processes.Chaos - dockers - random " +  strconv.Itoa(int(rad)))
+		log.Debug("proc.processes.Chaos - dockers - random " + strconv.Itoa(int(rad)))
 		err = p.Dockers[rad].Kill()
 		res.Docker = append(res.Docker, p.Dockers[rad])
 		p.Dockers = append(p.Dockers[:i], p.Dockers[i+1:]...)
@@ -102,7 +102,7 @@ func (p *Processes) Chaos (daemonInt int, serviceInt int, dockerInt int) (err er
 // true, nil -> ok
 // false, nil -> empty slice for docker and/or service
 // false, error -> error in kill call
-func (p *Processes) Shooter (name string, serviceType int, killExecutor bool) (resBool bool, err error){
+func (p *Processes) Shooter(name string, serviceType int, killExecutor bool) (resBool bool, err error) {
 	var timeStart = time.Now()
 	log.Debugf("routes.processes.Shooter - Start '%v'", timeStart)
 	var res = Session{}
@@ -112,22 +112,22 @@ func (p *Processes) Shooter (name string, serviceType int, killExecutor bool) (r
 	log.Debugf("proc.processes.Shooter - Kill task '%v' type '%v' in session: '%v' '%v' '%v'", name, serviceType, res.Id, res.Start, res.SessionType)
 	log.Debugf("proc.processes.Shooter - len(docker): '%v' len(service): '%v')", len(p.Dockers), len(p.Services))
 	switch serviceType {
-		case daemonEnum:
-			resBool, err = daemonsFor(name, p.Daemons)
+	case daemonEnum:
+		resBool, err = daemonsFor(name, p.Daemons)
 
-		case dockerEnum:
-			resBool, err = dockerFor(name, p.Dockers)
+	case dockerEnum:
+		resBool, err = dockerFor(name, p.Dockers)
 
-		case serviceEnum:
-			resBool, err = serviceFor(name, p.Services, killExecutor)
+	case serviceEnum:
+		resBool, err = serviceFor(name, p.Services, killExecutor)
 
-		case searchTypeEnum:
-			resBool, err = daemonsFor(name, p.Daemons)
-			resBool, err = dockerFor(name, p.Dockers)
-			resBool, err = serviceFor(name, p.Services, killExecutor)
+	case searchTypeEnum:
+		resBool, err = daemonsFor(name, p.Daemons)
+		resBool, err = dockerFor(name, p.Dockers)
+		resBool, err = serviceFor(name, p.Services, killExecutor)
 
-		default:
-			err = errors.New("Type of service not supported.")
+	default:
+		err = errors.New("Type of service not supported.")
 	}
 	res.Finish = int(time.Now().Unix())
 	Sessions = append(Sessions, res)
@@ -135,7 +135,7 @@ func (p *Processes) Shooter (name string, serviceType int, killExecutor bool) (r
 	return
 }
 
-func daemonsFor (name string, daemons []daemon) (resBool bool, err error) {
+func daemonsFor(name string, daemons []daemon) (resBool bool, err error) {
 	for _, d := range daemons {
 		if strings.Compare(name, d.Name) == 0 {
 			log.Infof("proc.processes.Shooter.daemonsFor - Killing task '%v'", name)
@@ -149,7 +149,7 @@ func daemonsFor (name string, daemons []daemon) (resBool bool, err error) {
 	return
 }
 
-func serviceFor (name string, services []service, killExecutor bool) (resBool bool, err error) {
+func serviceFor(name string, services []service, killExecutor bool) (resBool bool, err error) {
 	for _, d := range services {
 		if strings.Compare(name, d.TaskName) == 0 {
 			if killExecutor {
@@ -161,7 +161,7 @@ func serviceFor (name string, services []service, killExecutor bool) (resBool bo
 				}
 			} else {
 				log.Infof("proc.processes.Shooter - Killing task '%v' '%v'", name)
-				if ! d.Executor {
+				if !d.Executor {
 					if err = d.Kill(); err != nil {
 						log.Infof("proc.processes.Shooter - Killing task ERROR: '%v'", err.Error())
 					} else {
@@ -175,7 +175,7 @@ func serviceFor (name string, services []service, killExecutor bool) (resBool bo
 	return
 }
 
-func dockerFor (name string, docker []docker) (resBool bool, err error) {
+func dockerFor(name string, docker []docker) (resBool bool, err error) {
 	for _, d := range docker {
 		if strings.Compare(name, d.TaskName) == 0 {
 			log.Infof("proc.processes.Shooter.dockerFor - Killing task '%v'", name)
@@ -188,5 +188,3 @@ func dockerFor (name string, docker []docker) (resBool bool, err error) {
 	}
 	return
 }
-
-
