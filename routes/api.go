@@ -30,8 +30,8 @@ func handleChaos(ctx context.Context, w http.ResponseWriter, r *http.Request) *H
 	docker, err := strconv.Atoi(r.URL.Query()["docker"][0])
 
 	if err == nil {
-		if ! proc.IsSessionLock() {
-			proc := proc.Processes{}
+			proc := proc.Manager{}
+			proc.ConfigManager()
 			proc.LoadProcesses()
 			err = proc.Chaos(daemon, service, docker)
 			if err != nil {
@@ -44,9 +44,6 @@ func handleChaos(ctx context.Context, w http.ResponseWriter, r *http.Request) *H
 		} else {
 			json.NewEncoder(w).Encode(response{Code: "200", Status: "session locked"})
 		}
-	} else {
-		log.Debugf("routes.api.handleDaemon - ERROR: '%v'", err.Error())
-	}
 	return nil
 }
 
@@ -62,7 +59,8 @@ func handleShooter(ctx context.Context, w http.ResponseWriter, r *http.Request) 
 		json.NewEncoder(w).Encode(responseError{Cause: "Invalid params.", Code: "400", Status: "Error: " + err.Error()})
 	} else {
 		//02. Load process
-		var p = proc.Processes{}
+		var p = proc.Manager{}
+		p.ConfigManager()
 		p.LoadProcesses()
 		b, err := p.Shooter(name, typeService, killExecutor)
 		if b {
@@ -88,7 +86,7 @@ func handleList(ctx context.Context, w http.ResponseWriter, r *http.Request) *Ht
 	//01. Validate params
 
 	//02. Load process
-	var p = proc.Processes{}
+	var p = proc.Manager{}
 	err := p.LoadProcesses()
 
 	//03. Paint processes in log
