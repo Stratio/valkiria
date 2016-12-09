@@ -4,34 +4,33 @@ import (
 	log "github.com/Sirupsen/logrus"
 	//"github.com/Stratio/valkiria/dbus"
 	"io/ioutil"
+	"os"
 	"os/exec"
+	"os/user"
 	"strings"
 	"testing"
-	"os/user"
-	"os"
 )
 
 const (
-	Level           = log.DebugLevel
+	Level = log.DebugLevel
 )
 
 const (
-	Unit 		= "test.service"
+	Unit            = "test.service"
 	uid             = "0"
 	unitServicePath = "/tmp/test.service"
 	unitServiceLink = "/lib/systemd/system/test.service"
-	MesosName = "mesos-32156487435168416831"
-	pathTest = "/test/test/test/test/test/test/test/test/test/"+MesosName+"/test/test/test"
+	MesosName       = "mesos-32156487435168416831"
+	pathTest        = "/test/test/test/test/test/test/test/test/test/" + MesosName + "/test/test/test"
 )
 
 const (
-	DockerImage             = "ubuntu"
-	DockerContainerName 	= "testValkiria"
-
+	DockerImage         = "ubuntu"
+	DockerContainerName = "testValkiria"
 )
 
 var (
-	testFile = []byte("[Unit]\nDescription=test\n\n[Service]\nExecStart=/bin/bash -c 'while true; do echo hello; sleep 2; done'\nRestart=always\nWorkingDirectory="+pathTest+"\n")
+	testFile = []byte("[Unit]\nDescription=test\n\n[Service]\nExecStart=/bin/bash -c 'while true; do echo hello; sleep 2; done'\nRestart=always\nWorkingDirectory=" + pathTest + "\n")
 )
 
 func SetupDBusTest(t *testing.T) {

@@ -2,23 +2,23 @@ package routes
 
 import (
 	"encoding/json"
+	log "github.com/Sirupsen/logrus"
+	"github.com/Stratio/valkiria/proc"
 	"golang.org/x/net/context"
 	"net/http"
-	"github.com/Stratio/valkiria/proc"
 	"strconv"
-	log "github.com/Sirupsen/logrus"
 	"time"
 )
 
 type response struct {
 	Status string `json:"status,omitempty"`
-	Code string `json:"code,omitempty"`
+	Code   string `json:"code,omitempty"`
 }
 
 type responseError struct {
 	Status string `json:"status,omitempty"`
-	Cause string  `json:"cause,omitempty"`
-	Code string `json:"code,omitempty"`
+	Cause  string `json:"cause,omitempty"`
+	Code   string `json:"code,omitempty"`
 }
 
 func handleChaos(ctx context.Context, w http.ResponseWriter, r *http.Request) *HttpError {
@@ -30,20 +30,20 @@ func handleChaos(ctx context.Context, w http.ResponseWriter, r *http.Request) *H
 	docker, err := strconv.Atoi(r.URL.Query()["docker"][0])
 
 	if err == nil {
-			proc := proc.Manager{}
-			proc.ConfigManager()
-			proc.LoadProcesses()
-			err = proc.Chaos(daemon, service, docker)
-			if err != nil {
-				log.Debug("routes.api.handleDaemon - ERROR:" + err.Error())
-				json.NewEncoder(w).Encode(response{Status: "error: " + err.Error()})
-			} else {
-
-				json.NewEncoder(w).Encode(response{Code: "200", Status: "succes"})
-			}
+		proc := proc.Manager{}
+		proc.ConfigManager()
+		proc.LoadProcesses()
+		err = proc.Chaos(daemon, service, docker)
+		if err != nil {
+			log.Debug("routes.api.handleDaemon - ERROR:" + err.Error())
+			json.NewEncoder(w).Encode(response{Status: "error: " + err.Error()})
 		} else {
-			json.NewEncoder(w).Encode(response{Code: "200", Status: "session locked"})
+
+			json.NewEncoder(w).Encode(response{Code: "200", Status: "succes"})
 		}
+	} else {
+		json.NewEncoder(w).Encode(response{Code: "200", Status: "session locked"})
+	}
 	return nil
 }
 
@@ -79,7 +79,6 @@ func handleShooter(ctx context.Context, w http.ResponseWriter, r *http.Request) 
 	return nil
 }
 
-
 func handleList(ctx context.Context, w http.ResponseWriter, r *http.Request) *HttpError {
 	var timeStart = time.Now()
 	log.Debugf("routes.api.handleList - START - '%v'", timeStart)
@@ -87,6 +86,7 @@ func handleList(ctx context.Context, w http.ResponseWriter, r *http.Request) *Ht
 
 	//02. Load process
 	var p = proc.Manager{}
+	p.ConfigManager()
 	err := p.LoadProcesses()
 
 	//03. Paint processes in log

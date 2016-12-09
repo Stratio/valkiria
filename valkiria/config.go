@@ -4,9 +4,9 @@ import "github.com/codegangsta/cli"
 
 var (
 	FlAddr = cli.StringFlag{
-		Name:  "ip",
-		Usage: "<ip>:<port> to listen on",
-		Value: "127.0.0.1:8101",
+		Name:   "ip",
+		Usage:  "<ip>:<port> to listen on",
+		Value:  "127.0.0.1:9050",
 		EnvVar: "VALKIRIA_IP",
 	}
 	FlLog = cli.StringFlag{

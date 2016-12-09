@@ -1,15 +1,15 @@
 package proc
 
 import (
-	"github.com/Stratio/valkiria/test"
 	log "github.com/Sirupsen/logrus"
-	"testing"
+	"github.com/Stratio/valkiria/test"
 	"strings"
+	"testing"
 )
 
 var (
 	testKillService = func(t *testing.T) {
-		rRead , eRead := ReadAllDaemons([]string{test.Unit})
+		rRead, eRead := ReadAllDaemons([]string{test.Unit})
 		if eRead != nil {
 			t.Fatalf("proc.testReadAllService - ERROR: %v", eRead)
 		}
@@ -20,7 +20,7 @@ var (
 		if len(rProc) != 1 {
 			t.Fatalf("proc.testReadAllService - ERROR: It should have 1 element.")
 		}
-		if !strings.EqualFold(test.MesosName, rProc[0].TaskName){
+		if !strings.EqualFold(test.MesosName, rProc[0].TaskName) {
 			t.Fatalf("proc.testReadAllService - ERROR: Does not match the task recovered with the test.")
 		}
 		eKill := rProc[0].Kill()
@@ -29,7 +29,7 @@ var (
 		}
 	}
 	testReadAllService = func(t *testing.T) {
-		rRead , eRead := ReadAllDaemons([]string{test.Unit})
+		rRead, eRead := ReadAllDaemons([]string{test.Unit})
 		if eRead != nil {
 			t.Fatalf("", eRead)
 		}
@@ -40,17 +40,17 @@ var (
 		if len(rProc) != 1 {
 			t.Fatalf("proc.testReadAllService - ERROR: It should have 1 element.")
 		}
-		if !strings.EqualFold(test.MesosName, rProc[0].TaskName){
+		if !strings.EqualFold(test.MesosName, rProc[0].TaskName) {
 			t.Fatalf("proc.testReadAllService - ERROR: Does not match the task recovered with the test.")
 		}
 	}
-	testIsInBlackList =  func(t *testing.T) {
-		b  := isInBlackList(test.Unit, []string{test.Unit})
-		if  !b {
+	testIsInBlackList = func(t *testing.T) {
+		b := isInBlackList(test.Unit, []string{test.Unit})
+		if !b {
 			t.Fatalf("proc.testChaos - ERROR: Is in black list and do not match")
 		}
-		f  := isInBlackList(test.Unit, []string{"fakeUnit"})
-		if  f {
+		f := isInBlackList(test.Unit, []string{"fakeUnit"})
+		if f {
 			t.Fatalf("proc.testChaos - ERROR: Is not in black list and match")
 		}
 	}

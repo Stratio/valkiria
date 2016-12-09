@@ -1,11 +1,11 @@
 package proc
 
 import (
+	"errors"
 	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"strings"
-	"errors"
 	"time"
 )
 
@@ -26,18 +26,18 @@ const (
 )
 
 type Manager struct {
-	daemonConfigString []string
+	daemonConfigString  []string
 	dockerConfigPattern string
-	blackListServices []string
-	Daemons            []daemon
-	Dockers            []docker
-	Services           []service
+	blackListServices   []string
+	Daemons             []daemon
+	Dockers             []docker
+	Services            []service
 }
 
 func (m *Manager) ConfigManager() {
 	//TODO: plugin with config - mesos config default
 	m.daemonConfigString = []string{mesosMaster, mesosAgentPublic, mesosAgent, dcosMarathon, dcosZookeeper}
-	m.dockerConfigPattern = "/^mesos"
+	m.dockerConfigPattern = "^mesos-.*"
 	m.blackListServices = []string{mesosAgentLogrotate}
 }
 

@@ -68,7 +68,7 @@ func ReadAllDockers(patternContainerName string, functionToAdd function) (res []
 			}
 		}
 	}
-	log.Debugf("proc.service.ReadAllDockers - lenService: '%v'", len(res))
+	log.Debugf("proc.service.ReadAllDockers - lenDocker: '%v'", len(res))
 	return
 }
 
