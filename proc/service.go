@@ -14,6 +14,7 @@ const (
 	procDirectory = "/proc/"
 	statusFile    = "/status"
 	abc           = "abcdefghijklmnopqrstuvwxyz"
+	mesos		= "mesos"
 )
 
 type service struct {
@@ -36,11 +37,11 @@ func (s *service) Kill() (err error) {
 	return
 }
 
-func ReadAllChildProcess(daemons []daemon) (aux []service, err error) {
+func ReadAllChildProcess(daemons []daemon, blackList []string) (aux []service, err error) {
 	var ser []service
 	for _, d := range daemons {
 		if d.Pid > 0 {
-			ser, err = readAllChildServices(int64(d.Pid), []string{mesosAgentLogrotate}, true)
+			ser, err = readAllChildServices(int64(d.Pid), blackList, true)
 			for _, s := range ser {
 				aux = append(aux, s)
 			}
@@ -62,21 +63,21 @@ func readAllChildServices(ppid int64, blackListServices []string, setExecutor bo
 		for _, file := range files {
 			if !strings.ContainsAny(file.Name(), abc) {
 				status, err := procinfo.ReadProcessStatus(procDirectory + file.Name() + statusFile)
-				if err != nil {
-					log.Infof("Error reading file: '%v'. ERROR: '%v'", file.Name(), err.Error())
-				} else {
+				if err == nil {
 					if ppid == status.PPid && !isInBlackList(status.Name, blackListServices) {
 						link, _ := os.Readlink(procDirectory + file.Name() + "/cwd")
-						taskName := strings.Split(link, "/")[10]
-						res = append(res, service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, Executor: setExecutor, TaskName: taskName})
-						log.Debugf("proc.service.ReadAllServices - append - '%v' '%v' '%v' '%v'", taskName, status.Pid, status.Name, status.PPid)
+						splitTaskName := strings.Split(link, "/")
+						if len(splitTaskName) > 9 &&  strings.Contains(splitTaskName[10], mesos){
+							taskName := splitTaskName[10]
+							res = append(res, service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, Executor: setExecutor, TaskName: taskName})
+							log.Debugf("proc.service.ReadAllServices - append - '%v' '%v' '%v' '%v'", taskName, status.Pid, status.Name, status.PPid)
+						}
 					}
 				}
 			}
 
 		}
-	}
-	if err != nil {
+	} else {
 		log.Infof("proc.service.Kill - ERROR: '%v'", err.Error())
 	}
 	log.Debugf("proc.service.ReadAllService - lenService: '%v'", len(res))
