@@ -50,7 +50,8 @@ func TearDownDBusTest(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can not delete test path. %v", err)
 	}
-	//dbus.DbusInstance.StopUnit(Unit)
+	exec.Command("systemctl", "stop", "test").Run()
+
 }
 
 func SkipTesAllDBusTest(t *testing.T) {
@@ -63,17 +64,20 @@ func AddTestServiceDBusTest(t *testing.T) {
 	if err := ioutil.WriteFile(unitServicePath, testFile, 0644); err != nil {
 		t.Skipf("Can not create test file. %v", err.Error())
 	}
+	exec.Command("rm", "-fr", "/lib/systemd/system/test.service").Run()
 	if err := os.Link(unitServicePath, unitServiceLink); err != nil {
 		os.Remove(unitServicePath)
 		t.Skipf("Can not create test link. %v", err.Error())
 	}
 	err := exec.Command("mkdir", "-p", pathTest).Run()
 	if err != nil {
-		t.Skipf("Can not create directory for test. %v", err)
+		t.Skipf("Can not create directory for test. %v", err.Error())
 	}
+	exec.Command("systemctl", "stop", "test").Run()
 }
 
 func SetupDockerTest(t *testing.T) {
+	exec.Command("docker", "rm", "-f", "testValkiria").Run()
 	err := exec.Command("docker", "run", "-dit", "--env", "MESOS_TASK_ID=mesos_1232134", "--name", DockerContainerName, DockerImage, "/bin/bash").Run()
 	if err != nil {
 		t.Skipf("Can not create test container. Is it docker daemon running?? %v", err)
@@ -83,6 +87,6 @@ func SetupDockerTest(t *testing.T) {
 func TearDownDockerTest(t *testing.T) {
 	err := exec.Command("docker", "rm", "-f", "testValkiria").Run()
 	if err != nil {
-		t.Fatalf("Can not remove test container. %v", err)
+		t.Errorf("Can not remove test container. %v", err)
 	}
 }

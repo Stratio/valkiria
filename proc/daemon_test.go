@@ -40,7 +40,7 @@ var (
 	}
 )
 
-func TestDBusLib(t *testing.T) {
+func TestDaemonLib(t *testing.T) {
 	test.SetupDBusTest(t)
 	defer test.TearDownDBusTest(t)
 	log.SetLevel(test.Level)
