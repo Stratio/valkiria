@@ -13,5 +13,6 @@ hose {
         doUT(config)
         doPackage(conf: config, skipOnPR: true)
         doDeploy(config)
+        doStaticAnalysis(config)
      }
 }
