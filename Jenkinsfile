@@ -7,6 +7,7 @@ hose {
     SLACKTEAM = 'stratiopaas'
     BUILDTOOL = 'make'
     DEVTIMEOUT = 10
+    LANG = 'go'
 
     DEV = { config ->        
         doCompile(config)
