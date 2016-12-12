@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/codegangsta/cli"
 	"fmt"
-	"os"
-	"net/http"
-	"golang.org/x/net/context"
 	r "github.com/Stratio/valkiria/routes"
+	"github.com/codegangsta/cli"
+	"golang.org/x/net/context"
+	"net/http"
+	"os"
 )
 
 func Run(name string, commands ...cli.Command) {
@@ -26,6 +26,6 @@ func Run(name string, commands ...cli.Command) {
 }
 
 func ServeCmd(c *cli.Context, ctx context.Context, routes map[string]map[string]r.Handler) error {
-	r := r.NewRouter(ctx, routes)
-	return http.ListenAndServe(c.String("addr"), r)
+	ro := r.NewRouter(ctx, routes)
+	return http.ListenAndServe(c.String("ip"), ro)
 }

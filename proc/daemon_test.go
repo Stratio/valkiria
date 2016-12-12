@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	unit            = "test.service"
 	fakeUnit        = "fakeUnit.service"
 	fakeFakeUnit    = ":.aa)/sdf%4$("
 	unitServicePath = "/tmp/test.service"
@@ -19,7 +18,7 @@ const (
 
 var (
 	testKillDaemon = func(t *testing.T) {
-		var d = daemon{Name: unit}
+		var d = daemon{Name: test.Unit}
 		err := d.Kill()
 		if err != nil {
 			t.Errorf("proc.testKillDaemon - ERROR: %v", err)
@@ -31,23 +30,23 @@ var (
 		}
 	}
 	testReadAllDaemons = func(t *testing.T) {
-		res, err := ReadAllDaemons([]string{unit, fakeUnit, fakeFakeUnit})
+		res, err := ReadAllDaemons([]string{test.Unit, fakeUnit, fakeFakeUnit})
 		if err != nil {
 			t.Errorf("proc.testReadAllDaemons - ERROR: %v", err)
 		}
-		if len(res) != 1 || !strings.EqualFold(unit, res[0].Name) {
+		if len(res) != 1 || !strings.EqualFold(test.Unit, res[0].Name) {
 			t.Errorf("proc.testReadAllDaemons - ERROR: Unit name does not match.")
 		}
 	}
 )
 
-func TestDBusLib(t *testing.T) {
+func TestDaemonLib(t *testing.T) {
 	test.SetupDBusTest(t)
 	defer test.TearDownDBusTest(t)
 	log.SetLevel(test.Level)
 	startDBusUnit(t)
-	t.Run("testKill", testKillDaemon)
 	t.Run("testReadAllDaemons", testReadAllDaemons)
+	t.Run("testKill", testKillDaemon)
 }
 
 //WARNING: this code can produce import cycle not allowed in test phase. Dont move to test_util
@@ -56,7 +55,7 @@ func startDBusUnit(t *testing.T) {
 	if err := dbus.DbusInstance.NewDBus(); err != nil {
 		t.Skipf("Error initializating D-Bus system. Stop the program. FATAL: %v", err)
 	}
-	if err := dbus.DbusInstance.StartUnit(unit); err != nil {
+	if err := dbus.DbusInstance.StartUnit(test.Unit); err != nil {
 		os.Remove(unitServiceLink)
 		os.Remove(unitServicePath)
 		t.Skipf("Can not start Unit. %v", err)
