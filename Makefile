@@ -1,6 +1,6 @@
 compile:
 	bin/compile.sh
-
+	bin/cover.sh
 test:
 	bin/test.sh
 
@@ -13,19 +13,18 @@ docker:
 deploy:
 	bin/deploy.sh
 
+code-quality:
+	bin/codeQuality.sh
+
 clean:
 	rm -Rf target
-	rm -Rfi coverage*.out
 
 install:
 	go get github.com/tools/godep
 	godep go install -v -ldflags "-w" ./...
 
 cover:
-	godep go test -v -coverprofile=coverageDbus.out ./dbus
-	godep go test -v -coverprofile=coverageProc.out ./proc
-	godep go tool cover -html=coverageDbus.out
-	godep go tool cover -html=coverageProc.out
+	bin/cover.sh
 
 fmt:
 	godep go fmt ./proc
