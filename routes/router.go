@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/gorilla/mux"
-	log "github.com/Sirupsen/logrus"
 	"encoding/json"
-	"net/http"
+	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
 	"golang.org/x/net/context"
+	"net/http"
 )
 
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) *HttpError
