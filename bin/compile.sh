@@ -1,20 +1,22 @@
 #!/bin/bash -xv
 
-VIRTUALENV=$PWD/target
+. bin/commons.sh
+
 ALLPACKAGE="./valkiria ./routes ./proc ./dbus"
 LOGLEVEL=INFO
-VERSION=$(cat VERSION)
 BUILD=$(git rev-parse HEAD)
 LDFLAGS="-X main.Version=$VERSION -X main.Build=$BUILD -X main.LOGLEVEL=$LOGLEVEL"
 
-mkdir -p $VIRTUALENV/bin $VIRTUALENV/pkg $VIRTUALENV/src/github.com/Stratio/valkiria
-export GOPATH=$VIRTUALENV
+mkdir -p $GOPATH/bin $GOPATH/pkg $GOPATH/src/github.com/Stratio/valkiria
 go get -u github.com/tools/godep
-ln -s $PWD/valkiria $VIRTUALENV/src/github.com/Stratio/valkiria/valkiria
-ln -s $PWD/Godeps $VIRTUALENV/src/github.com/Stratio/valkiria/Godeps
-ln -s $PWD/dbus $VIRTUALENV/src/github.com/Stratio/valkiria/dbus
-ln -s $PWD/routes /$VIRTUALENV/src/github.com/Stratio/valkiria/routes
-ln -s $PWD/proc $VIRTUALENV/src/github.com/Stratio/valkiria/proc
-ln -s $PWD/vendor $VIRTUALENV/src/github.com/Stratio/valkiria/vendor
+go get -u github.com/mattn/goveralls
+go get -u github.com/jstemmer/go-junit-report
+ln -s $PWD/valkiria $GOPATH/src/github.com/Stratio/valkiria/valkiria
+ln -s $PWD/Godeps $GOPATH/src/github.com/Stratio/valkiria/Godeps
+ln -s $PWD/dbus $GOPATH/src/github.com/Stratio/valkiria/dbus
+ln -s $PWD/routes $GOPATH/src/github.com/Stratio/valkiria/routes
+ln -s $PWD/proc $GOPATH/src/github.com/Stratio/valkiria/proc
+ln -s $PWD/vendor $GOPATH/src/github.com/Stratio/valkiria/vendor
+ln -s $PWD/test $GOPATH/src/github.com/Stratio/valkiria/test
 cd $GOPATH/src/github.com/Stratio/valkiria
 $GOPATH/bin/godep go install -v -ldflags "-w $LDFLAGS" $ALLPACKAGE
