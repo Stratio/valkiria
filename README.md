@@ -1,6 +1,6 @@
 ## Stratio Valkiria
 
-[![Coverage Status](https://coveralls.io/repos/github/Stratio/valkiria/badge.svg?branch=master)](https://coveralls.io/github/Stratio/valkiria?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Stratio/valkiria/badge.svg?branch=HEAD)](https://coveralls.io/github/Stratio/valkiria?branch=HEAD)
 
 ## Description
 
