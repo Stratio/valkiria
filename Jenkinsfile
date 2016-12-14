@@ -8,6 +8,7 @@ hose {
     BUILDTOOL = 'make'
     DEVTIMEOUT = 10
     LANG = 'go'
+    AGENT = 'DCOS'
 
     DEV = { config ->        
         doCompile(config)
