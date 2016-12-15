@@ -17,18 +17,18 @@ const (
 	mesos         = "mesos"
 )
 
-type service struct {
+type Service struct {
 	Pid            uint64
 	Name           string
 	TaskName       string
 	Ppid           int64
 	Executor       bool
-	ChaosTimeStamp int
+	ChaosTimeStamp int64
 }
 
-func (s *service) Kill() (err error) {
+func (s *Service) Kill() (err error) {
 	log.Debug("proc.service.Kill")
-	s.ChaosTimeStamp = time.Now().UTC().Nanosecond()
+	s.ChaosTimeStamp = time.Now().UTC().UnixNano()
 	log.Infof("proc.service.Kill - '%v' '%v' '%v' '%v' '%v'", s.Pid, s.Name, s.Ppid, s.TaskName, s.ChaosTimeStamp)
 	err = syscall.Kill(int(s.Pid), 9)
 	if err != nil {
@@ -37,8 +37,8 @@ func (s *service) Kill() (err error) {
 	return
 }
 
-func ReadAllChildProcess(daemons []daemon, blackList []string) (aux []service, err error) {
-	var ser []service
+func ReadAllChildProcess(daemons []Daemon, blackList []string) (aux []Service, err error) {
+	var ser []Service
 	for _, d := range daemons {
 		if d.Pid > 0 {
 			ser, err = readAllChildServices(int64(d.Pid), blackList, true)
@@ -57,7 +57,7 @@ func ReadAllChildProcess(daemons []daemon, blackList []string) (aux []service, e
 }
 
 // Read all child process for parent pid
-func readAllChildServices(ppid int64, blackListServices []string, setExecutor bool) (res []service, err error) {
+func readAllChildServices(ppid int64, blackListServices []string, setExecutor bool) (res []Service, err error) {
 	log.Debug("proc.service.ReadAllServices")
 	if files, err := ioutil.ReadDir(procDirectory); err == nil {
 		for _, file := range files {
@@ -67,9 +67,9 @@ func readAllChildServices(ppid int64, blackListServices []string, setExecutor bo
 					if ppid == status.PPid && !isInBlackList(status.Name, blackListServices) {
 						link, _ := os.Readlink(procDirectory + file.Name() + "/cwd")
 						splitTaskName := strings.Split(link, "/")
-						if len(splitTaskName) > 9 && strings.Contains(splitTaskName[10], mesos) {
+						if len(splitTaskName) > 9  {
 							taskName := splitTaskName[10]
-							res = append(res, service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, Executor: setExecutor, TaskName: taskName})
+							res = append(res, Service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, Executor: setExecutor, TaskName: taskName})
 							log.Debugf("proc.service.ReadAllServices - append - '%v' '%v' '%v' '%v'", taskName, status.Pid, status.Name, status.PPid)
 						}
 					}
@@ -91,6 +91,6 @@ func isInBlackList(name string, blackListServices []string) (res bool) {
 			res = true
 		}
 	}
-	log.Debugf("proc.service.isInBlackList - '%v' blcakList '%v'", name, res)
+	log.Debugf("proc.service.isInBlackList - '%v' blackList '%v'", name, res)
 	return
 }
