@@ -24,62 +24,6 @@ var (
 		}
 
 	}
-	testChaos = func(t *testing.T) {
-		var manager = new(Manager)
-		manager.daemonConfigString = []string{test.Unit}
-		manager.blackListServices = []string{}
-		manager.dockerConfigPattern = "^/testValkiria"
-		eLoad := manager.LoadProcesses()
-		if eLoad != nil {
-			t.Fatalf("proc.testChaos - ERROR: %v", eLoad)
-		}
-		if len(manager.Daemons) != 1 || len(manager.Dockers) != 1 || len(manager.Services) != 1 {
-			t.Fatalf("proc.testReadAllService - ERROR: Should have 1 element by slice")
-		}
-		if !strings.EqualFold(manager.Daemons[0].Name, test.Unit) || !strings.EqualFold(manager.Dockers[0].Name, "/"+test.DockerContainerName) || !strings.EqualFold(manager.Services[0].TaskName, test.MesosName) {
-			t.Fatalf("proc.testReadAllService - ERROR: Name of daemon, docker or service does not match")
-		}
-		eChaosService := manager.Chaos(0, 0, 1)
-		if eChaosService != nil {
-			t.Fatalf("proc.testChaos - ERROR: %v", eChaosService)
-		}
-		if len(manager.Services) != 0 {
-			t.Fatalf("proc.testChaos - ERROR: Slice dockers length can be 0")
-		}
-		eChaosDaemon := manager.Chaos(1, 0, 0)
-		if eChaosDaemon != nil {
-			t.Fatalf("proc.testChaos - ERROR: %v", eChaosDaemon)
-		}
-		if len(manager.Daemons) != 0 {
-			t.Fatalf("proc.testChaos - ERROR: Slice daemons length can be 0")
-		}
-		eChaosDocker := manager.Chaos(0, 1, 0)
-		if eChaosDocker != nil {
-			t.Fatalf("proc.testChaos - ERROR: %v", eChaosDocker)
-		}
-		if len(manager.Dockers) != 0 {
-			t.Fatalf("proc.testChaos - ERROR: Slice dockers length can be 0")
-		}
-	}
-	testChaosFake = func(t *testing.T) {
-		var manager = new(Manager)
-		manager.Daemons = []daemon{daemon{Name: "fakeDaemon"}}
-		manager.Dockers = []docker{docker{Id: "12321", TaskName: "fakeDocker"}}
-		manager.Services = []service{service{Pid: 99999, TaskName: "fakeService"}}
-
-		eChaosService := manager.Chaos(0, 0, 1)
-		if eChaosService == nil {
-			t.Fatalf("proc.testChaos - ERROR: Should be error")
-		}
-		eChaosDaemon := manager.Chaos(1, 0, 0)
-		if eChaosDaemon == nil {
-			t.Fatalf("proc.testChaos - ERROR: Should be error")
-		}
-		eChaosDocker := manager.Chaos(0, 1, 0)
-		if eChaosDocker == nil {
-			t.Fatalf("proc.testChaos - ERROR: Should be error")
-		}
-	}
 	testShooter = func(t *testing.T) {
 		var manager = new(Manager)
 		manager.daemonConfigString = []string{test.Unit}
@@ -99,29 +43,29 @@ var (
 		if eShoterService != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterService)
 		}
-		if !rShoterService {
-			t.Errorf("proc.testShooter - ERROR: Bool service can be true")
+		if rShoterService == nil{
+			t.Errorf("proc.testShooter - ERROR: service can be not nil")
 		}
 		rShoterDocker, eShoterDocker := manager.Shooter(manager.Dockers[0].TaskName, dockerEnum, false)
 		if eShoterDocker != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterDocker)
 		}
-		if !rShoterDocker {
-			t.Errorf("proc.testShooter - ERROR: Bool docker can be true")
+		if rShoterDocker == nil{
+			t.Errorf("proc.testShooter - ERROR: docker can be not nil")
 		}
 		rShoterDaemon, eShoterDaemon := manager.Shooter(manager.Daemons[0].Name, daemonEnum, false)
 		if eShoterDaemon != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterDaemon)
 		}
-		if !rShoterDaemon {
-			t.Errorf("proc.testShooter - ERROR: Bool daemon can be true")
+		if rShoterDaemon == nil{
+			t.Errorf("proc.testShooter - ERROR: daemon can be not nil")
 		}
 		rShoterSearch, eShoterSearch := manager.Shooter(manager.Daemons[0].Name, searchTypeEnum, false)
 		if eShoterSearch != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterSearch)
 		}
-		if rShoterSearch {
-			t.Errorf("proc.testShooter - ERROR: Bool daemon default can be false")
+		if rShoterSearch != nil{
+			t.Errorf("proc.testShooter - ERROR: daemon can be nil")
 		}
 		_, eShoterDefault := manager.Shooter(manager.Daemons[0].Name, 10, false)
 		if eShoterDefault == nil {
@@ -130,37 +74,37 @@ var (
 	}
 	testShooterFake = func(t *testing.T) {
 		var manager = new(Manager)
-		manager.Daemons = []daemon{daemon{Name: "fakeDaemon"}}
-		manager.Dockers = []docker{docker{Id: "12321", TaskName: "fakeDocker"}}
-		manager.Services = []service{service{Pid: 99999, TaskName: "fakeService"}}
+		manager.Daemons = []Daemon{Daemon{Name: "fakeDaemon"}}
+		manager.Dockers = []Docker{Docker{Id: "12321", TaskName: "fakeDocker"}}
+		manager.Services = []Service{Service{Pid: 99999, TaskName: "fakeService"}}
 
 		rShoterService, eShoterService := manager.Shooter(manager.Services[0].TaskName, serviceEnum, false)
 		if eShoterService == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterService {
-			t.Errorf("proc.testShooter - ERROR: Bool service can be false")
+		if rShoterService != nil{
+			t.Errorf("proc.testShooter - ERROR: service can be nil")
 		}
 		rShoterServiceTrue, eShoterServiceTrue := manager.Shooter(manager.Services[0].TaskName, serviceEnum, true)
 		if eShoterServiceTrue == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterServiceTrue {
-			t.Errorf("proc.testShooter - ERROR: Bool service can be false")
+		if rShoterServiceTrue != nil{
+			t.Errorf("proc.testShooter - ERROR: service can be nil")
 		}
 		rShoterDocker, eShoterDocker := manager.Shooter(manager.Dockers[0].TaskName, dockerEnum, false)
 		if eShoterDocker == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterDocker {
-			t.Errorf("proc.testShooter - ERROR: Bool docker can be false")
+		if rShoterDocker != nil{
+			t.Errorf("proc.testShooter - ERROR: docker can be nil")
 		}
 		rShoterDaemon, eShoterDaemon := manager.Shooter(manager.Daemons[0].Name, daemonEnum, false)
 		if eShoterDaemon == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterDaemon {
-			t.Errorf("proc.testShooter - ERROR: Bool daemon can be false")
+		if rShoterDaemon != nil{
+			t.Errorf("proc.testShooter - ERROR: daemon can be nil")
 		}
 	}
 )
@@ -173,8 +117,6 @@ func TestManagerChaosLib(t *testing.T) {
 	defer test.TearDownDBusTest(t)
 	defer test.TearDownDockerTest(t)
 	t.Run("testLoadProcesses", testLoadProcesses)
-	t.Run("testChaos", testChaos)
-	t.Run("testChaosFake", testChaosFake)
 }
 
 func TestManagerShooterLib(t *testing.T) {
