@@ -16,15 +16,15 @@ const (
 	equal       = "="
 )
 
-type docker struct {
+type Docker struct {
 	Id             string
 	Name           string
 	TaskName       string
 	Image          string
-	ChaosTimeStamp int
+	ChaosTimeStamp int64
 }
 
-type function func(conatiner types.Container) (*docker, error)
+type function func(conatiner types.Container) (*Docker, error)
 
 func newDockerClientInitialization() (c *client.Client, err error) {
 	if c, err = client.NewEnvClient(); err != nil {
@@ -33,11 +33,11 @@ func newDockerClientInitialization() (c *client.Client, err error) {
 	return c, err
 }
 
-func (d *docker) Kill() (err error) {
+func (d *Docker) Kill() (err error) {
 	log.Debug("proc.docker.Kill")
 	var clientDocker *client.Client
 	if clientDocker, err = newDockerClientInitialization(); err == nil {
-		d.ChaosTimeStamp = time.Now().UTC().Nanosecond()
+		d.ChaosTimeStamp = time.Now().UTC().UnixNano()
 		log.Infof("proc.docker.Kill - '%v' '%v' '%v' '%v'", d.Id, d.Name, d.Image, d.ChaosTimeStamp)
 		err = clientDocker.ContainerKill(context.Background(), d.Id, "KILL")
 		if err != nil {
@@ -47,7 +47,7 @@ func (d *docker) Kill() (err error) {
 	return
 }
 
-func ReadAllDockers(patternContainerName string, functionToAdd function) (res []docker, err error) {
+func ReadAllDockers(patternContainerName string, functionToAdd function) (res []Docker, err error) {
 	log.Debug("proc.docker.ReadAllDockers")
 	var validName = regexp.MustCompile(patternContainerName)
 	var c *client.Client
@@ -72,7 +72,7 @@ func ReadAllDockers(patternContainerName string, functionToAdd function) (res []
 	return
 }
 
-var FunctionToAddDockerContainerMesosCluster = func(container types.Container) (*docker, error) {
+var FunctionToAddDockerContainerMesosCluster = func(container types.Container) (*Docker, error) {
 	//TODO: other new client is mandatory. bug in docker api
 	c2, _ := client.NewEnvClient()
 	insp, _ := c2.ContainerInspect(context.Background(), container.ID)
@@ -82,5 +82,5 @@ var FunctionToAddDockerContainerMesosCluster = func(container types.Container) (
 			taskEnv = strings.Split(e, equal)[1]
 		}
 	}
-	return &docker{Id: container.ID, Name: container.Names[0], Image: container.Image, TaskName: taskEnv}, nil
+	return &Docker{Id: container.ID, Name: container.Names[0], Image: container.Image, TaskName: taskEnv}, nil
 }
