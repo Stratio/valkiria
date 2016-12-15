@@ -24,6 +24,14 @@ var (
 		}
 
 	}
+	configManager = func(t *testing.T) {
+		var manager = new(Manager)
+		manager.ConfigManager()
+		eLoad := manager.LoadProcesses()
+		if eLoad != nil {
+			t.Fatalf("proc.testReadAllService - ERROR: %v", eLoad)
+		}
+	}
 	testShooter = func(t *testing.T) {
 		var manager = new(Manager)
 		manager.daemonConfigString = []string{test.Unit}
@@ -43,28 +51,28 @@ var (
 		if eShoterService != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterService)
 		}
-		if rShoterService == nil{
+		if rShoterService == nil {
 			t.Errorf("proc.testShooter - ERROR: service can be not nil")
 		}
 		rShoterDocker, eShoterDocker := manager.Shooter(manager.Dockers[0].TaskName, dockerEnum, false)
 		if eShoterDocker != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterDocker)
 		}
-		if rShoterDocker == nil{
+		if rShoterDocker == nil {
 			t.Errorf("proc.testShooter - ERROR: docker can be not nil")
 		}
 		rShoterDaemon, eShoterDaemon := manager.Shooter(manager.Daemons[0].Name, daemonEnum, false)
 		if eShoterDaemon != nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterDaemon)
 		}
-		if rShoterDaemon == nil{
+		if rShoterDaemon == nil {
 			t.Errorf("proc.testShooter - ERROR: daemon can be not nil")
 		}
 		rShoterSearch, eShoterSearch := manager.Shooter(manager.Daemons[0].Name, searchTypeEnum, false)
-		if eShoterSearch != nil {
+		if eShoterSearch == nil {
 			t.Errorf("proc.testShooter - ERROR: %v", eShoterSearch)
 		}
-		if rShoterSearch != nil{
+		if rShoterSearch != nil {
 			t.Errorf("proc.testShooter - ERROR: daemon can be nil")
 		}
 		_, eShoterDefault := manager.Shooter(manager.Daemons[0].Name, 10, false)
@@ -82,28 +90,28 @@ var (
 		if eShoterService == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterService != nil{
+		if rShoterService != nil {
 			t.Errorf("proc.testShooter - ERROR: service can be nil")
 		}
 		rShoterServiceTrue, eShoterServiceTrue := manager.Shooter(manager.Services[0].TaskName, serviceEnum, true)
 		if eShoterServiceTrue == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterServiceTrue != nil{
+		if rShoterServiceTrue != nil {
 			t.Errorf("proc.testShooter - ERROR: service can be nil")
 		}
 		rShoterDocker, eShoterDocker := manager.Shooter(manager.Dockers[0].TaskName, dockerEnum, false)
 		if eShoterDocker == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterDocker != nil{
+		if rShoterDocker != nil {
 			t.Errorf("proc.testShooter - ERROR: docker can be nil")
 		}
 		rShoterDaemon, eShoterDaemon := manager.Shooter(manager.Daemons[0].Name, daemonEnum, false)
 		if eShoterDaemon == nil {
 			t.Errorf("proc.testShooter - ERROR: Shoould be error")
 		}
-		if rShoterDaemon != nil{
+		if rShoterDaemon != nil {
 			t.Errorf("proc.testShooter - ERROR: daemon can be nil")
 		}
 	}
@@ -117,6 +125,7 @@ func TestManagerChaosLib(t *testing.T) {
 	defer test.TearDownDBusTest(t)
 	defer test.TearDownDockerTest(t)
 	t.Run("testLoadProcesses", testLoadProcesses)
+	t.Run("configManager", configManager)
 }
 
 func TestManagerShooterLib(t *testing.T) {

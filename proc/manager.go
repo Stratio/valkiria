@@ -24,7 +24,7 @@ const (
 	daemonEnum
 )
 
-type Process interface{
+type Process interface {
 	Kill() error
 }
 
@@ -80,8 +80,12 @@ func (m *Manager) Shooter(name string, serviceType int, killExecutor bool) (proc
 
 	case searchTypeEnum:
 		proc, err = daemonsFor(name, m.Daemons)
-		if proc != nil {proc, err = dockerFor(name, m.Dockers)}
-		if proc != nil {proc, err = serviceFor(name, m.Services, killExecutor)}
+		if proc != nil {
+			proc, err = dockerFor(name, m.Dockers)
+		}
+		if proc != nil {
+			proc, err = serviceFor(name, m.Services, killExecutor)
+		}
 
 	default:
 		err = errors.New("SERVICE TYPE NOT FOUND")

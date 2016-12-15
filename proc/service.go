@@ -67,7 +67,7 @@ func readAllChildServices(ppid int64, blackListServices []string, setExecutor bo
 					if ppid == status.PPid && !isInBlackList(status.Name, blackListServices) {
 						link, _ := os.Readlink(procDirectory + file.Name() + "/cwd")
 						splitTaskName := strings.Split(link, "/")
-						if len(splitTaskName) > 9  {
+						if len(splitTaskName) > 9 {
 							taskName := splitTaskName[10]
 							res = append(res, Service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, Executor: setExecutor, TaskName: taskName})
 							log.Debugf("proc.service.ReadAllServices - append - '%v' '%v' '%v' '%v'", taskName, status.Pid, status.Name, status.PPid)
