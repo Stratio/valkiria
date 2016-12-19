@@ -13,12 +13,12 @@ var (
 		if eRead != nil {
 			t.Fatalf("proc.testReadAllService - ERROR: %v", eRead)
 		}
-		rProc, eProc := ReadAllChildProcess(rRead, []string{})
+		rProc, eProc := ReadAllChildProcess(rRead, []string{"test.service"}, []string{})
 		if eProc != nil {
 			t.Fatalf("proc.testReadAllService - ERROR: %v", eProc)
 		}
-		if len(rProc) != 1 {
-			t.Fatalf("proc.testReadAllService - ERROR: It should have 1 element.")
+		if len(rProc) < 1 {
+			t.Fatalf("proc.testReadAllService - ERROR: It should have almost 1 element.")
 		}
 		if !strings.EqualFold(test.MesosName, rProc[0].TaskName) {
 			t.Fatalf("proc.testReadAllService - ERROR: Does not match the task recovered with the test.")
@@ -33,12 +33,12 @@ var (
 		if eRead != nil {
 			t.Fatalf("", eRead)
 		}
-		rProc, eProc := ReadAllChildProcess(rRead, []string{})
+		rProc, eProc := ReadAllChildProcess(rRead, []string{"test.service"}, []string{})
 		if eProc != nil {
 			t.Fatalf("proc.testReadAllService - ERROR: %v", eProc)
 		}
-		if len(rProc) != 1 {
-			t.Fatalf("proc.testReadAllService - ERROR: It should have 1 element.")
+		if len(rProc) < 1 {
+			t.Fatalf("proc.testReadAllService - ERROR: It should have almost 1 element.")
 		}
 		if !strings.EqualFold(test.MesosName, rProc[0].TaskName) {
 			t.Fatalf("proc.testReadAllService - ERROR: Does not match the task recovered with the test.")
