@@ -133,8 +133,6 @@ func serviceFor(name string, services []Service, killExecutor int) (proc []Proce
 							proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
 						}
 					}
-
-				default:
 			}
 		}
 	}
