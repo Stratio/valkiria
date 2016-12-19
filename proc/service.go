@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"regexp"
 )
 
 const (
@@ -37,7 +38,36 @@ func (s *Service) Kill() (err error) {
 	return
 }
 
-func ReadAllChildProcess(daemons []Daemon, blackList []string) (aux []Service, err error) {
+func ReadAllChildProcess(daemons []Daemon, daemonList []string, blackList []string)(aux []Service, err error){
+
+	if files, err := ioutil.ReadDir(procDirectory); err == nil {
+		for _, file := range files {
+			if !strings.ContainsAny(file.Name(), abc) {
+				status, err := procinfo.ReadProcessStatus(procDirectory + file.Name() + statusFile)
+				if err == nil {
+					link, _ := os.Readlink(procDirectory + file.Name() + "/cwd")
+					validatePath, _ := regexp.Compile("^/var/lib/mesos/slave/slaves/.*/frameworks/.*/executors/.*/runs/.*")
+					if !isInBlackList(status.Name, blackList) && validatePath.MatchString(link) {
+						splitTaskName := strings.Split(link, "/")
+						taskName := splitTaskName[10]
+						s := Service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, TaskName: taskName}
+						d, _ := ReadAllDaemons(daemonList)
+						if status.PPid == 1 || (len(d) > 0 && status.PPid == int64(d[0].Pid)){
+								s.Executor = true
+						}
+						aux = append(aux, s)
+						log.Debugf("proc.service.ReadAllServices - append - '%v' '%v' '%v' '%v'", taskName, status.Pid, status.Name, status.PPid)
+
+					}
+				}
+			}
+
+		}
+	}
+	return
+}
+
+func ReadAllChildProcess1(daemons []Daemon, blackList []string) (aux []Service, err error) {
 	var ser []Service
 	for _, d := range daemons {
 		if d.Pid > 0 {
@@ -58,7 +88,6 @@ func ReadAllChildProcess(daemons []Daemon, blackList []string) (aux []Service, e
 
 // Read all child process for parent pid
 func readAllChildServices(ppid int64, blackListServices []string, setExecutor bool) (res []Service, err error) {
-	log.Debug("proc.service.ReadAllServices")
 	if files, err := ioutil.ReadDir(procDirectory); err == nil {
 		for _, file := range files {
 			if !strings.ContainsAny(file.Name(), abc) {
@@ -85,12 +114,12 @@ func readAllChildServices(ppid int64, blackListServices []string, setExecutor bo
 }
 
 func isInBlackList(name string, blackListServices []string) (res bool) {
-	log.Debug("proc.service.isInBlackList")
+	// log.Debug("proc.service.isInBlackList")
 	for _, blackService := range blackListServices {
 		if strings.Compare(name, blackService) == 0 {
 			res = true
 		}
 	}
-	log.Debugf("proc.service.isInBlackList - '%v' blackList '%v'", name, res)
+	// log.Debugf("proc.service.isInBlackList - '%v' blackList '%v'", name, res)
 	return
 }
