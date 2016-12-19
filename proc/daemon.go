@@ -14,12 +14,11 @@ type Daemon struct {
 }
 
 func (d *Daemon) Kill() (err error) {
-	log.Debug("proc.daemon.Kill")
 	d.ChaosTimeStamp = time.Now().UTC().UnixNano()
-	log.Infof("proc.daemon.Kill - '%v' '%v' '%v' '%v'", d.Pid, d.Name, d.Path, d.ChaosTimeStamp)
+	log.Debugf("proc.daemon.Kill - killing '%v' '%v' '%v' '%v'", d.Pid, d.Name, d.Path, d.ChaosTimeStamp)
 	err = dbus.DbusInstance.KillUnit(d.Name)
 	if err != nil {
-		log.Infof("proc.daemon.Kill - '%v' '%v' '%v' '%v' - ERROR: '%v'", d.Pid, d.Name, d.Path, d.ChaosTimeStamp, err.Error())
+		log.Errorf("proc.daemon.Kill - '%v' '%v' '%v' '%v' - '%v'", d.Pid, d.Name, d.Path, d.ChaosTimeStamp, err.Error())
 	}
 	return
 }

@@ -19,9 +19,15 @@ const (
 
 const (
 	searchTypeEnum = iota
+	daemonEnum
 	dockerEnum
 	serviceEnum
-	daemonEnum
+)
+
+const (
+	all = iota
+	onlyTask
+	onlyExecutor
 )
 
 type Process interface {
@@ -30,6 +36,7 @@ type Process interface {
 
 type Manager struct {
 	daemonConfigString  []string
+	daemonListForChildServices []string
 	dockerConfigPattern string
 	blackListServices   []string
 	Daemons             []Daemon
@@ -40,28 +47,27 @@ type Manager struct {
 func (m *Manager) ConfigManager() {
 	//TODO: plugin with config - mesos config default
 	m.daemonConfigString = []string{mesosMaster, mesosAgentPublic, mesosAgent, dcosMarathon, dcosZookeeper}
+	m.daemonListForChildServices = []string{mesosAgent, mesosAgentPublic}
 	m.dockerConfigPattern = "^\\/mesos-.*"
-	m.blackListServices = []string{mesosAgentLogrotate}
+	m.blackListServices = []string{mesosAgentLogrotate, mesosDockerExecutor}
 }
 
 // Load processes from SO
 func (m *Manager) LoadProcesses() (err error) {
 	m.Daemons, err = ReadAllDaemons(m.daemonConfigString)
 	m.Dockers, err = ReadAllDockers(m.dockerConfigPattern, FunctionToAddDockerContainerMesosCluster)
-	m.Services, err = ReadAllChildProcess(m.Daemons, m.blackListServices)
+	m.Services, err = ReadAllChildProcess(m.Daemons, m.daemonListForChildServices, m.blackListServices)
 	return
 }
 
 // Shooter is a method that kills tasks by order
 // name task
 // killExecutor kill executor task too else only service task
-// serviceType 0 - daemon; 1 - docker; 2 - service; 3 -search in all; n default case
+// serviceType 1 - daemon; 2 - docker; 3 - service; 0 -search in all; n default case
 // true, nil -> ok
 // false, nil -> empty slice for docker and/or service
 // false, error -> error in kill call
-func (m *Manager) Shooter(name string, serviceType int, killExecutor bool) (proc Process, err error) {
-	var timeStart = time.Now()
-	log.Debugf("routes.processes.Shooter - Start '%v'", timeStart)
+func (m *Manager) Shooter(name string, serviceType int, killExecutor int) (proc []Process, err error) {
 	var res = Session{}
 	res.Id = int(time.Now().Unix())
 	res.Start = int(time.Now().Unix())
@@ -71,7 +77,6 @@ func (m *Manager) Shooter(name string, serviceType int, killExecutor bool) (proc
 	switch serviceType {
 	case daemonEnum:
 		proc, err = daemonsFor(name, m.Daemons)
-
 	case dockerEnum:
 		proc, err = dockerFor(name, m.Dockers)
 
@@ -80,10 +85,10 @@ func (m *Manager) Shooter(name string, serviceType int, killExecutor bool) (proc
 
 	case searchTypeEnum:
 		proc, err = daemonsFor(name, m.Daemons)
-		if proc != nil {
+		if len(proc) < 1 && err == nil{
 			proc, err = dockerFor(name, m.Dockers)
 		}
-		if proc != nil {
+		if len(proc) < 1 && err == nil {
 			proc, err = serviceFor(name, m.Services, killExecutor)
 		}
 
@@ -92,58 +97,55 @@ func (m *Manager) Shooter(name string, serviceType int, killExecutor bool) (proc
 	}
 	res.Finish = int(time.Now().Unix())
 	Sessions = append(Sessions, res)
-	log.Debugf("routes.processes.Shooter - Finish sesion '%v' in: '%v' with result '%v'", res.Id, time.Since(timeStart), proc)
 	return
 }
 
-func daemonsFor(name string, daemons []Daemon) (proc Process, err error) {
+// daemonsFor kill daemon
+func daemonsFor(name string, daemons []Daemon) (proc []Process, err error) {
 	for _, d := range daemons {
 		if strings.Compare(name, d.Name) == 0 {
-			log.Infof("proc.processes.Shooter.daemonsFor - Killing task '%v'", name)
-			if err = d.Kill(); err != nil {
-				log.Infof("proc.processes.Shooter.daemonsFor - Killing task ERROR: '%v'", err.Error())
-			} else {
-				proc = &d
+			if err = d.Kill(); err == nil {
+				proc = append(proc, &Daemon{Pid: d.Pid, Name: d.Name, Path: d.Path, ChaosTimeStamp: d.ChaosTimeStamp})
 			}
 		}
 	}
 	return
 }
 
-func serviceFor(name string, services []Service, killExecutor bool) (proc Process, err error) {
+// serviceFor kill task or executor
+func serviceFor(name string, services []Service, killExecutor int) (proc []Process, err error) {
 	for _, d := range services {
 		if strings.Compare(name, d.TaskName) == 0 {
-			if killExecutor {
-				log.Infof("proc.processes.Shooter.serviceFor - Killing task '%v'", name)
-				if err = d.Kill(); err != nil {
-					log.Infof("proc.processes.Shooter.serviceFor - Killing task ERROR: '%v'", err.Error())
-				} else {
-					proc = &d
-				}
-			} else {
-				log.Infof("proc.processes.Shooter - Killing task '%v'", name)
-				if !d.Executor {
-					if err = d.Kill(); err != nil {
-						log.Infof("proc.processes.Shooter - Killing task ERROR: '%v'", err.Error())
-					} else {
-						proc = &d
+			switch killExecutor{
+				case all:
+					if err = d.Kill(); err == nil {
+						proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
 					}
-				}
-			}
+				case onlyTask:
+					if d.Executor == false{
+						if err = d.Kill(); err == nil {
+							proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
+						}
+					}
+				case onlyExecutor:
+					if d.Executor == true{
+						if err = d.Kill(); err == nil {
+							proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
+						}
+					}
 
+				default:
+			}
 		}
 	}
 	return
 }
 
-func dockerFor(name string, docker []Docker) (proc Process, err error) {
+func dockerFor(name string, docker []Docker) (proc []Process, err error) {
 	for _, d := range docker {
 		if strings.Compare(name, d.TaskName) == 0 {
-			log.Infof("proc.processes.Shooter.dockerFor - Killing task '%v'", name)
-			if err = d.Kill(); err != nil {
-				log.Infof("proc.processes.Shooter.dockerFor - Killing task ERROR: '%v'", err.Error())
-			} else {
-				proc = &d
+			if err = d.Kill(); err == nil {
+				proc = append(proc, &Docker{Id: d.Id, Name: d.Name, TaskName: d.TaskName, Image: d.Image, ChaosTimeStamp: d.ChaosTimeStamp})
 			}
 		}
 	}
