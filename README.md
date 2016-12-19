@@ -4,8 +4,6 @@
 
 ## Description
 
-[![Coverage Status](https://coveralls.io/repos/github/Stratio/valkiria/badge.svg?branch=master)](https://coveralls.io/github/Stratio/valkiria?branch=master)
-
 Valkiria is an open source project based on http://principlesofchaos.org/ concepts an inspired by Netflix ChaosMonkey tool.
 It is designed to be compatible with Stratio PAAS but can work with any cluster of Mesos.
 Can kill processes randomly or selectively so it is a great tool for:
