@@ -3,8 +3,6 @@ package proc
 import (
 	"errors"
 	log "github.com/Sirupsen/logrus"
-	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -16,183 +14,136 @@ const (
 	dcosMarathon        = "dcos-marathon.service"
 	dcosZookeeper       = "dcos-exhibitor.service"
 	mesosAgentLogrotate = "mesos-logrotate"
+	mesosDockerExecutor = "mesos-docker-ex"
 )
 
 const (
-	daemonEnum = iota
+	searchTypeEnum = iota
+	daemonEnum
 	dockerEnum
 	serviceEnum
-	searchTypeEnum
 )
+
+const (
+	all = iota
+	onlyTask
+	onlyExecutor
+)
+
+type Process interface {
+	Kill() error
+}
 
 type Manager struct {
 	daemonConfigString  []string
+	daemonListForChildServices []string
 	dockerConfigPattern string
 	blackListServices   []string
-	Daemons             []daemon
-	Dockers             []docker
-	Services            []service
+	Daemons             []Daemon
+	Dockers             []Docker
+	Services            []Service
 }
 
 func (m *Manager) ConfigManager() {
 	//TODO: plugin with config - mesos config default
 	m.daemonConfigString = []string{mesosMaster, mesosAgentPublic, mesosAgent, dcosMarathon, dcosZookeeper}
-	m.dockerConfigPattern = "^mesos-.*"
-	m.blackListServices = []string{mesosAgentLogrotate}
+	m.daemonListForChildServices = []string{mesosAgent, mesosAgentPublic}
+	m.dockerConfigPattern = "^\\/mesos-.*"
+	m.blackListServices = []string{mesosAgentLogrotate, mesosDockerExecutor}
 }
 
 // Load processes from SO
 func (m *Manager) LoadProcesses() (err error) {
 	m.Daemons, err = ReadAllDaemons(m.daemonConfigString)
 	m.Dockers, err = ReadAllDockers(m.dockerConfigPattern, FunctionToAddDockerContainerMesosCluster)
-	m.Services, err = ReadAllChildProcess(m.Daemons, m.blackListServices)
-	return
-}
-
-// Chaos time
-// daemonInt is the number of daemons that can kill in  Chaos time
-// serviceInt is the number of services that can kill in  Chaos time
-// ddockerInt is the number of dockers that can kill in  Chaos time
-// return error if apply
-func (m *Manager) Chaos(daemonInt int, dockerInt int, serviceInt int) (err error) {
-	log.Debug("proc.processes.Chaos")
-	var res = Session{}
-	res.Id = int(time.Now().Unix())
-	res.Start = int(time.Now().Unix())
-	res.SessionType = CHAOS
-	for i := 0; i < daemonInt && i < len(m.Daemons); i++ {
-		log.Debug("proc.processes.Chaos - daemons")
-		rad := rand.Intn(len(m.Daemons))
-		log.Debug("proc.processes.Chaos - daemons - random " + strconv.Itoa(int(rad)))
-		err = m.Daemons[rad].Kill()
-		res.Daemon = append(res.Daemon, m.Daemons[rad])
-		m.Daemons = append(m.Daemons[:i], m.Daemons[i+1:]...)
-		if err != nil {
-			log.Debug("proc.processes.Chaos - daemons - ERROR: " + err.Error())
-		}
-	}
-
-	for i := 0; i < serviceInt && i < len(m.Services); i++ {
-		log.Debug("proc.processes.Chaos - services")
-		rad := rand.Intn(len(m.Services))
-		log.Debug("proc.processes.Chaos - services - random " + strconv.Itoa(int(rad)))
-		err = m.Services[rad].Kill()
-		res.Service = append(res.Service, m.Services[rad])
-		m.Services = append(m.Services[:i], m.Services[i+1:]...)
-		if err != nil {
-			log.Debug("proc.processes.Chaos - services - ERROR: " + err.Error())
-		}
-	}
-
-	for i := 0; i < dockerInt && i < len(m.Dockers); i++ {
-		log.Debug("proc.processes.Chaos - dockers")
-		rad := rand.Intn(len(m.Dockers))
-		log.Debug("proc.processes.Chaos - dockers - random " + strconv.Itoa(int(rad)))
-		err = m.Dockers[rad].Kill()
-		res.Docker = append(res.Docker, m.Dockers[rad])
-		m.Dockers = append(m.Dockers[:i], m.Dockers[i+1:]...)
-		if err != nil {
-			log.Debug("proc.processes.Chaos - dockers - ERROR: " + err.Error())
-		}
-	}
-
-	res.Finish = int(time.Now().Unix())
-	Sessions = append(Sessions, res)
-	log.Debugf("proc.processes.Chaos - Sessions '%v'", len(Sessions))
-	if err != nil {
-		log.Debug("proc.processes.Chaos - ERROR: " + err.Error())
-	}
+	m.Services, err = ReadAllChildProcess(m.Daemons, m.daemonListForChildServices, m.blackListServices)
 	return
 }
 
 // Shooter is a method that kills tasks by order
 // name task
 // killExecutor kill executor task too else only service task
-// serviceType 0 - daemon; 1 - docker; 2 - service; 3 -search in all; n default case
+// serviceType 1 - daemon; 2 - docker; 3 - service; 0 -search in all; n default case
 // true, nil -> ok
 // false, nil -> empty slice for docker and/or service
 // false, error -> error in kill call
-func (m *Manager) Shooter(name string, serviceType int, killExecutor bool) (resBool bool, err error) {
-	var timeStart = time.Now()
-	log.Debugf("routes.processes.Shooter - Start '%v'", timeStart)
+func (m *Manager) Shooter(name string, serviceType int, killExecutor int) (proc []Process, err error) {
 	var res = Session{}
 	res.Id = int(time.Now().Unix())
 	res.Start = int(time.Now().Unix())
 	res.SessionType = SHOOTER
 	log.Debugf("proc.processes.Shooter - Kill task '%v' type '%v' in session: '%v' '%v' '%v'", name, serviceType, res.Id, res.Start, res.SessionType)
-	log.Debugf("proc.processes.Shooter - len(docker): '%v' len(service): '%v')", len(m.Dockers), len(m.Services))
+	log.Debugf("proc.processes.Shooter - len(daemon): '%v' len(docker): '%v' len(service): '%v')", len(m.Daemons), len(m.Dockers), len(m.Services))
 	switch serviceType {
 	case daemonEnum:
-		resBool, err = daemonsFor(name, m.Daemons)
-
+		proc, err = daemonsFor(name, m.Daemons)
 	case dockerEnum:
-		resBool, err = dockerFor(name, m.Dockers)
+		proc, err = dockerFor(name, m.Dockers)
 
 	case serviceEnum:
-		resBool, err = serviceFor(name, m.Services, killExecutor)
+		proc, err = serviceFor(name, m.Services, killExecutor)
 
 	case searchTypeEnum:
-		resBool, err = daemonsFor(name, m.Daemons)
-		resBool, err = dockerFor(name, m.Dockers)
-		resBool, err = serviceFor(name, m.Services, killExecutor)
+		proc, err = daemonsFor(name, m.Daemons)
+		if len(proc) < 1 && err == nil{
+			proc, err = dockerFor(name, m.Dockers)
+		}
+		if len(proc) < 1 && err == nil {
+			proc, err = serviceFor(name, m.Services, killExecutor)
+		}
 
 	default:
-		err = errors.New("Type of service not supported.")
+		err = errors.New("SERVICE TYPE NOT FOUND")
 	}
 	res.Finish = int(time.Now().Unix())
 	Sessions = append(Sessions, res)
-	log.Debugf("routes.processes.Shooter - Finish sesion '%v' in: '%v' with result '%v'", res.Id, time.Since(timeStart), resBool)
 	return
 }
 
-func daemonsFor(name string, daemons []daemon) (resBool bool, err error) {
+// daemonsFor kill daemon
+func daemonsFor(name string, daemons []Daemon) (proc []Process, err error) {
 	for _, d := range daemons {
 		if strings.Compare(name, d.Name) == 0 {
-			log.Infof("proc.processes.Shooter.daemonsFor - Killing task '%v'", name)
-			if err = d.Kill(); err != nil {
-				log.Infof("proc.processes.Shooter.daemonsFor - Killing task ERROR: '%v'", err.Error())
-			} else {
-				resBool = true
+			if err = d.Kill(); err == nil {
+				proc = append(proc, &Daemon{Pid: d.Pid, Name: d.Name, Path: d.Path, ChaosTimeStamp: d.ChaosTimeStamp})
 			}
 		}
 	}
 	return
 }
 
-func serviceFor(name string, services []service, killExecutor bool) (resBool bool, err error) {
+// serviceFor kill task or executor
+func serviceFor(name string, services []Service, killExecutor int) (proc []Process, err error) {
 	for _, d := range services {
 		if strings.Compare(name, d.TaskName) == 0 {
-			if killExecutor {
-				log.Infof("proc.processes.Shooter.serviceFor - Killing task '%v'", name)
-				if err = d.Kill(); err != nil {
-					log.Infof("proc.processes.Shooter.serviceFor - Killing task ERROR: '%v'", err.Error())
-				} else {
-					resBool = true
-				}
-			} else {
-				log.Infof("proc.processes.Shooter - Killing task '%v'", name)
-				if !d.Executor {
-					if err = d.Kill(); err != nil {
-						log.Infof("proc.processes.Shooter - Killing task ERROR: '%v'", err.Error())
-					} else {
-						resBool = true
+			switch killExecutor{
+				case all:
+					if err = d.Kill(); err == nil {
+						proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
 					}
-				}
+				case onlyTask:
+					if d.Executor == false{
+						if err = d.Kill(); err == nil {
+							proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
+						}
+					}
+				case onlyExecutor:
+					if d.Executor == true{
+						if err = d.Kill(); err == nil {
+							proc = append(proc, &Service{Pid: d.Pid, Name: d.Name, TaskName: d.TaskName, Ppid: d.Ppid, Executor: d.Executor, ChaosTimeStamp: d.ChaosTimeStamp})
+						}
+					}
 			}
-
 		}
 	}
 	return
 }
 
-func dockerFor(name string, docker []docker) (resBool bool, err error) {
+func dockerFor(name string, docker []Docker) (proc []Process, err error) {
 	for _, d := range docker {
 		if strings.Compare(name, d.TaskName) == 0 {
-			log.Infof("proc.processes.Shooter.dockerFor - Killing task '%v'", name)
-			if err = d.Kill(); err != nil {
-				log.Infof("proc.processes.Shooter.dockerFor - Killing task ERROR: '%v'", err.Error())
-			} else {
-				resBool = true
+			if err = d.Kill(); err == nil {
+				proc = append(proc, &Docker{Id: d.Id, Name: d.Name, TaskName: d.TaskName, Image: d.Image, ChaosTimeStamp: d.ChaosTimeStamp})
 			}
 		}
 	}

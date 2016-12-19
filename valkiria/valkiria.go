@@ -45,18 +45,18 @@ func action(f func(c *cli.Context) error) func(c *cli.Context) {
 
 func agentAction(c *cli.Context) error {
 	setDBusInstance()
-	return startServer(c)
+	return startServer(c, routes.RoutesAgent)
 }
 
 func orchestratorAction(c *cli.Context) error {
-	return startServer(c)
+	return startServer(c, routes.RoutesOrchestrator)
 }
 
-func startServer(c *cli.Context) error {
+func startServer(c *cli.Context, r map[string]map[string]routes.Handler) error {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, "ip", c.String("ip"))
 	log.Info("Serving api")
-	return ServeCmd(c, ctx, routes.RoutesOrchestrator)
+	return ServeCmd(c, ctx, r)
 }
 func setLogLevel(c *cli.Context) {
 	level, err := log.ParseLevel(c.String("log"))

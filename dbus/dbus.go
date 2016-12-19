@@ -66,12 +66,11 @@ func (d *DSbusStruct) StopUnit(unitName string) (err error) {
 }
 
 func (d *DSbusStruct) KillUnit(unitName string) (err error) {
-	log.Debug("dbus.KillUnit")
+	log.Debugf("dbus.KillUnit -killing  '%v'", unitName)
 	err = d.o.Call(killUnit, 0, unitName, killMode, killSignall).Store()
 	if err != nil {
-		log.Infof("dbus.KillUnit - ERROR: %v", err.Error())
+		log.Errorf("dbus.KillUnit - %v", err.Error())
 	}
-	log.Debug("dbus.dbus.KillUnit - RES: EMPTY RES")
 	return
 }
 

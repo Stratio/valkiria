@@ -12,7 +12,7 @@ type Session struct {
 	Start       int
 	Finish      int
 	SessionType int
-	Daemon      []daemon
-	Docker      []docker
-	Service     []service
+	Daemon      []Daemon
+	Docker      []Docker
+	Service     []Service
 }

@@ -64,7 +64,7 @@ func TestDockerLib(t *testing.T) {
 	t.Run("testKill", testKillDockers)
 }
 
-var fakeTestFunc = func(container types.Container) (*docker, error) {
+var fakeTestFunc = func(container types.Container) (*Docker, error) {
 	//TODO: other new client is mandatory. bug in docker api
 	return nil, errors.New("this is a test error, good error...")
 }

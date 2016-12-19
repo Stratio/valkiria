@@ -18,12 +18,12 @@ const (
 
 var (
 	testKillDaemon = func(t *testing.T) {
-		var d = daemon{Name: test.Unit}
+		var d = Daemon{Name: test.Unit}
 		err := d.Kill()
 		if err != nil {
 			t.Errorf("proc.testKillDaemon - ERROR: %v", err)
 		}
-		var dFake = daemon{Name: fakeUnit}
+		var dFake = Daemon{Name: fakeUnit}
 		errFake := dFake.Kill()
 		if errFake == nil {
 			t.Error("proc.testKillDaemon - ERROR: fakeUnit not exist but result is succes")
