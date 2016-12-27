@@ -66,10 +66,10 @@ func handleShooter(ctx context.Context, w http.ResponseWriter, r *http.Request) 
 	switch {
 		case  len(proc) > 0 && err == nil:
 			log.Infof("routes.api.handleShooter - %v", proc)
-			json.NewEncoder(w).Encode(response{Code: "200", Status: "Succes", Proc: proc})
+			json.NewEncoder(w).Encode(response{Code: "200", Status: "Success", Proc: proc})
 		case  len(proc) == 0 && err == nil:
-			log.Warning("routes.api.handleShooter - 'TASK NOT FOUND'")
-			json.NewEncoder(w).Encode(responseError{Code: "404", Status: "Empty result", Cause: "TASK NOT FOUND"})
+			log.Warning("routes.api.handleShooter - 'INVALID PARAMS'")
+			json.NewEncoder(w).Encode(responseError{Code: "400", Status: "Empty result", Cause: "INVALID PARAMS"})
 		case  len(proc) > 0 && err != nil:
 			log.Warningf("routes.api.handleShooter - %v", proc)
 			json.NewEncoder(w).Encode(responseError{Code: "500", Status: "The kill process has been interrupted because errors have been encountered. Some tasks may be removed.", Cause: err.Error(), Proc: proc})
@@ -77,8 +77,8 @@ func handleShooter(ctx context.Context, w http.ResponseWriter, r *http.Request) 
 			log.Errorf("routes.api.handleShooter - '%v'", err.Error())
 			json.NewEncoder(w).Encode(responseError{Code: "500", Status: "Server error", Cause: err.Error()})
 		default:
-			log.Errorf("routes.api.handleShooter - Unknow option")
-			json.NewEncoder(w).Encode(responseError{Code: "500", Status: "Server error", Cause: "Unknow option"})
+			log.Errorf("routes.api.handleShooter - Unknown option")
+			json.NewEncoder(w).Encode(responseError{Code: "500", Status: "Server error", Cause: "Unknown option"})
 	}
 	return nil
 }
