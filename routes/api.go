@@ -62,14 +62,19 @@ func handleShooter(ctx context.Context, w http.ResponseWriter, r *http.Request) 
 		return nil
 	}
 	//.
+	if (!serviceTypeIsWithinTheValidRange(sr.ServiceType) || !killExecutorIsWithinTheValidRange(sr.KillExecutor)) {
+        log.Warning("routes.api.handleShooter - 'INVALID PARAMS'")
+        json.NewEncoder(w).Encode(responseError{Code: "400", Status: "Empty result", Cause: "Invalid params"})
+        return nil
+    }
 	proc, err := p.Shooter(sr.Name, sr.ServiceType, sr.KillExecutor)
 	switch {
 		case  len(proc) > 0 && err == nil:
 			log.Infof("routes.api.handleShooter - %v", proc)
 			json.NewEncoder(w).Encode(response{Code: "200", Status: "Success", Proc: proc})
 		case  len(proc) == 0 && err == nil:
-			log.Warning("routes.api.handleShooter - 'INVALID PARAMS'")
-			json.NewEncoder(w).Encode(responseError{Code: "400", Status: "Empty result", Cause: "INVALID PARAMS"})
+			log.Warning("routes.api.handleShooter - 'TASK NOT FOUND'")
+			json.NewEncoder(w).Encode(responseError{Code: "404", Status: "Empty result", Cause: "Task not found"})
 		case  len(proc) > 0 && err != nil:
 			log.Warningf("routes.api.handleShooter - %v", proc)
 			json.NewEncoder(w).Encode(responseError{Code: "500", Status: "The kill process has been interrupted because errors have been encountered. Some tasks may be removed.", Cause: err.Error(), Proc: proc})
@@ -97,4 +102,22 @@ func handleList(ctx context.Context, w http.ResponseWriter, r *http.Request) *Ht
 		json.NewEncoder(w).Encode(responseError{Code: "500", Status: "Server error", Cause: err.Error()})
 	}
 	return nil
+}
+
+//checks whether the service type is within the valid range
+func serviceTypeIsWithinTheValidRange(serviceType int) bool {
+  if (serviceType >= 0 && serviceType <=3) {
+     return true
+  } else {
+     return false
+  }
+}
+
+//checks whether the kill executor is within the valid range
+func killExecutorIsWithinTheValidRange(killExecutor int) bool {
+  if (killExecutor >= 0 && killExecutor <=2) {
+     return true
+  } else {
+     return false
+  }
 }
