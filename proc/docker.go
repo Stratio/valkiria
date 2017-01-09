@@ -13,6 +13,9 @@ import (
 const (
 	running     = "running"
 	taskMesosId = "MESOS_TASK_ID"
+	frameWorkName = "FRAMEWORK_NAME"
+	mesosFrameWorkName = "MESOS_FRAMEWORK_NAME"
+	marathonApId = "MARATHON_APP_ID"
 	equal       = "="
 )
 
@@ -20,6 +23,7 @@ type Docker struct {
 	Id             string
 	Name           string
 	TaskName       string
+	FrameWorkName  string
 	Image          string
 	ChaosTimeStamp int64
 }
@@ -77,10 +81,20 @@ var FunctionToAddDockerContainerMesosCluster = func(container types.Container) (
 	c2, _ := client.NewEnvClient()
 	insp, _ := c2.ContainerInspect(context.Background(), container.ID)
 	var taskEnv string
+	var frameworkEnv string
 	for _, e := range insp.Config.Env {
 		if strings.Contains(e, taskMesosId) {
 			taskEnv = strings.Split(e, equal)[1]
 		}
+		if strings.Contains(e, frameWorkName) {
+			frameworkEnv = strings.Split(e, equal)[1]
+		}
+		if strings.Contains(e, mesosFrameWorkName) {
+			frameworkEnv = strings.Split(e, equal)[1]
+		}
+		if strings.Contains(e, marathonApId) {
+			frameworkEnv = strings.Split(e, equal)[1]
+		}
 	}
-	return &Docker{Id: container.ID, Name: container.Names[0], Image: container.Image, TaskName: taskEnv}, nil
+	return &Docker{Id: container.ID, Name: container.Names[0], Image: container.Image, TaskName: taskEnv, FrameWorkName: frameworkEnv}, nil
 }

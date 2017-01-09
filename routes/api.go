@@ -115,9 +115,9 @@ func serviceTypeIsWithinTheValidRange(serviceType int) bool {
 
 //checks whether the kill executor is within the valid range
 func killExecutorIsWithinTheValidRange(killExecutor int) bool {
-  if (killExecutor >= 0 && killExecutor <=2) {
-     return true
-  } else {
-     return false
-  }
+	if (killExecutor >= 0 && killExecutor <= 2) {
+		return true
+	} else {
+		return false
+	}
 }

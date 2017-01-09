@@ -15,6 +15,7 @@ const (
 	dcosZookeeper       = "dcos-exhibitor.service"
 	mesosAgentLogrotate = "mesos-logrotate"
 	mesosDockerExecutor = "mesos-docker-ex"
+	dockerExecutor = "docker"
 )
 
 const (
@@ -49,7 +50,7 @@ func (m *Manager) ConfigManager() {
 	m.daemonConfigString = []string{mesosMaster, mesosAgentPublic, mesosAgent, dcosMarathon, dcosZookeeper}
 	m.daemonListForChildServices = []string{mesosAgent, mesosAgentPublic}
 	m.dockerConfigPattern = "^\\/mesos-.*"
-	m.blackListServices = []string{mesosAgentLogrotate, mesosDockerExecutor}
+	m.blackListServices = []string{mesosAgentLogrotate, mesosDockerExecutor, dockerExecutor}
 }
 
 // Load processes from SO

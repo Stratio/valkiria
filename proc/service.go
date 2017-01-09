@@ -22,6 +22,7 @@ type Service struct {
 	Pid            uint64
 	Name           string
 	TaskName       string
+	FrameWorkId    string
 	Ppid           int64
 	Executor       bool
 	ChaosTimeStamp int64
@@ -49,8 +50,9 @@ func ReadAllChildProcess(daemons []Daemon, daemonList []string, blackList []stri
 					validatePath, _ := regexp.Compile("^/var/lib/mesos/slave/slaves/.*/frameworks/.*/executors/.*/runs/.*")
 					if !isInBlackList(status.Name, blackList) && validatePath.MatchString(link) {
 						splitTaskName := strings.Split(link, "/")
+						frameWorkId := splitTaskName[8]
 						taskName := splitTaskName[10]
-						s := Service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, TaskName: taskName}
+						s := Service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, TaskName: taskName, FrameWorkId: frameWorkId}
 						d, _ := ReadAllDaemons(daemonList)
 						if status.PPid == 1 || (len(d) > 0 && status.PPid == int64(d[0].Pid)){
 								s.Executor = true
@@ -68,12 +70,10 @@ func ReadAllChildProcess(daemons []Daemon, daemonList []string, blackList []stri
 }
 
 func isInBlackList(name string, blackListServices []string) (res bool) {
-	// log.Debug("proc.service.isInBlackList")
 	for _, blackService := range blackListServices {
 		if strings.Compare(name, blackService) == 0 {
 			res = true
 		}
 	}
-	// log.Debugf("proc.service.isInBlackList - '%v' blackList '%v'", name, res)
 	return
 }
