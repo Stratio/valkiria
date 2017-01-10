@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 0.1.0 (upcoming)
+## 0.1.0 (January 10, 2017)
 
 * Integration with PaaS
 * Destroy mesos task through REST API
