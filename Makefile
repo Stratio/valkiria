@@ -10,6 +10,7 @@ test:
 	bin/test.sh
 
 package:
+	bin/compile.sh
 	bin/package.sh
 
 docker:
