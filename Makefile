@@ -16,7 +16,7 @@ docker:
 	bin/docker.sh
 
 deploy:
-	bin/deploy.sh
+	bin/compile.sh bin/deploy.sh
 
 code-quality:
 	bin/codeQuality.sh

@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-. bin/compile.sh
 . bin/commons.sh
 
 if [ -d "$GOPATH" ]; then
