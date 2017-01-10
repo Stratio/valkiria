@@ -1,6 +1,11 @@
 compile:
 	bin/compile.sh
 	bin/cover.sh
+
+change-version:
+	echo "Modifying version to: $(version)"
+	echo $(version) > VERSION
+	
 test:
 	bin/test.sh
 
