@@ -2,4 +2,7 @@
 
 ## 0.1.0 (upcoming)
 
-* Initial development
+* Integration with PaaS
+* Destroy mesos task through REST API
+* Destroy docker container through REST API
+* Destroy fabric services through REST API
