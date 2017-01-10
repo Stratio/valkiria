@@ -11,7 +11,6 @@ mkdir -p $GOPATH/bin $GOPATH/pkg $GOPATH/src/github.com/Stratio/valkiria
 go get -u github.com/tools/godep
 go get -u github.com/mattn/goveralls
 go get -u github.com/jstemmer/go-junit-report
-echo $PWD ---- $GOPATH
 	[ -d $GOPATH/src/github.com/Stratio/valkiria/valkiria ] || ln -s $PWD/valkiria $GOPATH/src/github.com/Stratio/valkiria/valkiria
 	[ -d $GOPATH/src/github.com/Stratio/valkiria/Godeps ] 	|| ln -s $PWD/Godeps $GOPATH/src/github.com/Stratio/valkiria/Godeps
 	[ -d $GOPATH/src/github.com/Stratio/valkiria/dbus ] 	|| ln -s $PWD/dbus $GOPATH/src/github.com/Stratio/valkiria/dbus

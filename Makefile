@@ -10,13 +10,13 @@ test:
 	bin/test.sh
 
 package:
-	bin/package.sh
+	bin/compile.sh bin/package.sh
 
 docker:
 	bin/docker.sh
 
 deploy:
-	bin/compile.sh bin/deploy.sh
+	bin/deploy.sh
 
 code-quality:
 	bin/codeQuality.sh
