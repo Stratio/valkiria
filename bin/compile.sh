@@ -18,5 +18,8 @@ go get -u github.com/jstemmer/go-junit-report
 [ -d $GOPATH/src/github.com/Stratio/valkiria/proc ] 	|| ln -s $PWD/proc $GOPATH/src/github.com/Stratio/valkiria/proc
 [ -d $GOPATH/src/github.com/Stratio/valkiria/vendor ] 	|| ln -s $PWD/vendor $GOPATH/src/github.com/Stratio/valkiria/vendor
 [ -d $GOPATH/src/github.com/Stratio/valkiria/test ] 	|| ln -s $PWD/test $GOPATH/src/github.com/Stratio/valkiria/test
+[ -d $GOPATH/src/github.com/Stratio/valkiria/manager ] 	|| ln -s $PWD/test $GOPATH/src/github.com/Stratio/valkiria/manager
+[ -d $GOPATH/src/github.com/Stratio/valkiria/plugin ] 	|| ln -s $PWD/test $GOPATH/src/github.com/Stratio/valkiria/plugin
+[ -d $GOPATH/src/github.com/Stratio/valkiria/workers ] 	|| ln -s $PWD/test $GOPATH/src/github.com/Stratio/valkiria/workers
 cd $GOPATH/src/github.com/Stratio/valkiria
 $GOPATH/bin/godep go install -v -ldflags "-w $LDFLAGS" $ALLPACKAGE
