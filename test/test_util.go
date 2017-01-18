@@ -49,8 +49,8 @@ func TearDownDBusTest(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can not delete test path. %v", err)
 	}
-	exec.Command("systemctl", "stop", "test").Run()
 
+	exec.Command("systemctl", "stop", "test").Run()
 }
 
 func SkipTesAllDBusTest(t *testing.T) {
@@ -77,7 +77,7 @@ func AddTestServiceDBusTest(t *testing.T) {
 
 func SetupDockerTest(t *testing.T) {
 	exec.Command("docker", "rm", "-f", "testValkiria").Run()
-	err := exec.Command("docker", "run", "-dit", "--env", "MESOS_TASK_ID=mesos_1232134", "--name", DockerContainerName, DockerImage, "/bin/bash").Run()
+	err := exec.Command("docker", "run", "-dit", "--env", "MESOS_TASK_ID=mesos_1232134", "--env", "FRAMEWORK_NAME=mesos_1232134", "--env", "MESOS_FRAMEWORK_NAME=mesos_1232134", "--env", "MARATHON_APP_ID=mesos_1232134", "--name", DockerContainerName, DockerImage, "/bin/bash").Run()
 	if err != nil {
 		t.Skipf("Can not create test container. Is it docker daemon running?? %v", err)
 	}
