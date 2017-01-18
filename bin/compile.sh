@@ -2,7 +2,7 @@
 
 . bin/commons.sh
 
-ALLPACKAGE="./valkiria ./routes ./proc ./dbus"
+ALLPACKAGE="./..."
 LOGLEVEL=INFO
 BUILD=$(git rev-parse HEAD)
 LDFLAGS="-X main.Version=$VERSION -X main.Build=$BUILD -X main.LOGLEVEL=$LOGLEVEL"
