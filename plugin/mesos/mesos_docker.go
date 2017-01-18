@@ -1,22 +1,22 @@
 package mesos
 
 import (
+	"github.com/Stratio/valkiria/plugin"
+	"github.com/Stratio/valkiria/proc"
 	"github.com/docker/distribution/context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"regexp"
 	"strings"
-	"github.com/Stratio/valkiria/proc"
-	"github.com/Stratio/valkiria/plugin"
 )
 
 const (
-	running     = "running"
-	taskMesosId = "MESOS_TASK_ID"
-	frameWorkName = "FRAMEWORK_NAME"
+	running            = "running"
+	taskMesosId        = "MESOS_TASK_ID"
+	frameWorkName      = "FRAMEWORK_NAME"
 	mesosFrameWorkName = "MESOS_FRAMEWORK_NAME"
-	marathonApId = "MARATHON_APP_ID"
-	equal       = "="
+	marathonApId       = "MARATHON_APP_ID"
+	equal              = "="
 )
 
 type function func(conatiner types.Container) (*proc.Docker, error)
@@ -44,8 +44,8 @@ var FunctionToAddDockerContainerMesosCluster = func(container types.Container) (
 	return &proc.Docker{Id: container.ID, Name: container.Names[0], Image: container.Image, KillName: taskEnv, FrameWorkName: frameworkEnv}, nil
 }
 
-func (m *MesosConfig) GetDocker() (func ()([]plugin.Process, error)){
-	return func ()([]plugin.Process, error){
+func (m *MesosConfig) GetDocker() func() ([]plugin.Process, error) {
+	return func() ([]plugin.Process, error) {
 		return ReadAllDockers(m.DockerConfigPattern, FunctionToAddDockerContainerMesosCluster)
 	}
 }

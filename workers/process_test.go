@@ -2,8 +2,8 @@ package workers
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"testing"
 	"github.com/Stratio/valkiria/test"
+	"testing"
 )
 
 var (
@@ -14,16 +14,17 @@ var (
 		var msgKill = Msg{Res: make(chan interface{}, 1)}
 		processWorker.ChRead <- &msgRead
 		processWorker.ChRead <- &msgRead
-		<- msgRead.Res
+		<-msgRead.Res
 		if len(msgRead.Err) > 1 {
 			t.Errorf("Should be 0 errors")
 		}
 		processWorker.ChKill <- &msgKill
 		processWorker.ChKill <- &msgKill
-		<- msgKill.Res
+		<-msgKill.Res
 		if len(msgKill.Err) > 1 {
 			t.Errorf("Should be 0 errors")
-		}	}
+		}
+	}
 	testProcessWorkerKill = func(t *testing.T) {
 		var processWorker = NewWorkerProcess()
 		processWorker.LoadProcesses()
@@ -31,14 +32,14 @@ var (
 		var msgKill = Msg{Res: make(chan interface{}, 1)}
 		processWorker.ChKill <- &msgKill
 		processWorker.ChKill <- &msgKill
-		<- msgKill.Res
+		<-msgKill.Res
 		if len(msgKill.Err) > 1 {
 			t.Errorf("Should be 0 errors")
 		}
 
 		processWorker.ChRead <- &msgRead
 		processWorker.ChRead <- &msgRead
-		<- msgRead.Res
+		<-msgRead.Res
 		if len(msgRead.Err) > 1 {
 			t.Errorf("Should be 0 errors")
 		}

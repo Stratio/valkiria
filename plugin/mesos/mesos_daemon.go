@@ -1,13 +1,13 @@
 package mesos
 
-import(
-	"github.com/Stratio/valkiria/proc"
-	"github.com/valkiria/dbus"
+import (
 	"github.com/Stratio/valkiria/plugin"
+	"github.com/Stratio/valkiria/proc"
+	"github.com/Stratio/valkiria/dbus"
 )
 
-func (m *MesosConfig) GetDaemons() (func ()([]plugin.Process, error)){
-	return func ()([]plugin.Process, error){
+func (m *MesosConfig) GetDaemons() func() ([]plugin.Process, error) {
+	return func() ([]plugin.Process, error) {
 		return ReadAllDaemons(m.DaemonConfigString)
 	}
 }

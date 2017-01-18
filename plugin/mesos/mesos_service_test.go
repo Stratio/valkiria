@@ -8,32 +8,31 @@ import (
 	"github.com/Stratio/valkiria/plugin"
 )
 
-const(
+const (
 	killName = "mesos-32156487435168416831"
 )
 
 var (
-
 	testReadKillService = func(t *testing.T) {
-			var pluginInstance = NewMesosConfig()
-			pluginInstance.DaemonConfigString = []string{unit}
-			pluginInstance.DockerConfigPattern = "^/testValkiria"
-			pluginInstance.DaemonListForChildServices = []string{unit}
+		var pluginInstance = NewMesosConfig()
+		pluginInstance.DaemonConfigString = []string{unit}
+		pluginInstance.DockerConfigPattern = "^/testValkiria"
+		pluginInstance.DaemonListForChildServices = []string{unit}
 
-			var daemons, _ = pluginInstance.GetDaemons()()
-			var services, _ = pluginInstance.GetServices()()
-			var dockers, _ = pluginInstance.GetDocker()()
+		var daemons, _ = pluginInstance.GetDaemons()()
+		var services, _ = pluginInstance.GetServices()()
+		var dockers, _ = pluginInstance.GetDocker()()
 
-			var functionRead = pluginInstance.FindAndKill()
-			var aux []plugin.Process
-			res, err := functionRead(append(append(append(aux, daemons...), services...), dockers...), killName, "killExecutor=0")
-			if err != nil {
-				t.Errorf("plugin_mesos.testReadAllDaemons - ERROR: %v", err)
-			}
-			if len(res) < 1 {
-				t.Errorf("plugin_mesos.testReadAllDaemons - Should be one element")
-			}
+		var functionRead = pluginInstance.FindAndKill()
+		var aux []plugin.Process
+		res, err := functionRead(append(append(append(aux, daemons...), services...), dockers...), killName, "killExecutor=0")
+		if err != nil {
+			t.Errorf("plugin_mesos.testReadAllDaemons - ERROR: %v", err)
 		}
+		if len(res) < 1 {
+			t.Errorf("plugin_mesos.testReadAllDaemons - Should be one element")
+		}
+	}
 	testReadKillServiceTask = func(t *testing.T) {
 		var pluginInstance = NewMesosConfig()
 		pluginInstance.DaemonConfigString = []string{unit}

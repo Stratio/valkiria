@@ -38,15 +38,15 @@ kills task via 'kill' and kills docker task via 'docker kill'.
 
 ```console
 $ go get -u github.com/stratio/valkiria
-$ make install
+$ make
 ```
 
 
 ## Usage
 
 ```console
-$ valkiria orchestrator ip=10.200.27.1:9050 log=INFO
-$ valkiria agent ip=10.200.27.2:9050 log=INFO
+$ valkiria orchestrator log=INFO
+$ valkiria agent log=INFO
 ```
 
 
