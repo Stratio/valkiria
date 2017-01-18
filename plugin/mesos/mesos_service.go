@@ -1,13 +1,13 @@
 package mesos
 
-import(
+import (
+	"github.com/Stratio/valkiria/plugin"
+	"github.com/Stratio/valkiria/proc"
 	procinfo "github.com/c9s/goprocinfo/linux"
 	"io/ioutil"
 	"os"
-	"strings"
 	"regexp"
-	"github.com/Stratio/valkiria/plugin"
-	"github.com/Stratio/valkiria/proc"
+	"strings"
 	//log "github.com/Sirupsen/logrus"
 )
 
@@ -17,13 +17,13 @@ const (
 	abc           = "abcdefghijklmnopqrstuvwxyz"
 )
 
-func (m *MesosConfig) GetServices() (func ()([]plugin.Process, error)){
-	return func ()([]plugin.Process, error){
+func (m *MesosConfig) GetServices() func() ([]plugin.Process, error) {
+	return func() ([]plugin.Process, error) {
 		return ReadAllChildProcess(m.DaemonListForChildServices, m.BlackListServices)
 	}
 }
 
-func ReadAllChildProcess(daemonList []string, blackList []string)(aux []plugin.Process, err error){
+func ReadAllChildProcess(daemonList []string, blackList []string) (aux []plugin.Process, err error) {
 	if files, err := ioutil.ReadDir(procDirectory); err == nil {
 		for _, file := range files {
 			if !strings.ContainsAny(file.Name(), abc) {
@@ -37,7 +37,7 @@ func ReadAllChildProcess(daemonList []string, blackList []string)(aux []plugin.P
 						taskName := splitTaskName[10]
 						s := proc.Service{Pid: status.Pid, Name: status.Name, Ppid: status.PPid, KillName: taskName, FrameWorkName: frameWorkId}
 						d, _ := ReadAllDaemons(daemonList)
-						if status.PPid == 1 || (len(d) > 0 && status.PPid == int64(d[0].(*proc.Daemon).Pid)){
+						if status.PPid == 1 || (len(d) > 0 && status.PPid == int64(d[0].(*proc.Daemon).Pid)) {
 							s.Executor = true
 						}
 						aux = append(aux, &s)
@@ -59,4 +59,3 @@ func isInBlackList(name string, blackListServices []string) (res bool) {
 	}
 	return
 }
-

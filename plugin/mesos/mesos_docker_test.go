@@ -2,15 +2,15 @@ package mesos
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"github.com/Stratio/valkiria/plugin"
 	"github.com/Stratio/valkiria/test"
 	"testing"
-	"github.com/Stratio/valkiria/plugin"
 )
 
 const (
 	patternTask          = "^/testValkiria"
 	fakePatternMesosTask = "^fake"
-	killNameDocker = "mesos_1232134"
+	killNameDocker       = "mesos_1232134"
 )
 
 var (
@@ -44,7 +44,6 @@ var (
 			t.Errorf("plugin_mesos.testReadAllDaemons - Should be one element.")
 		}
 	}
-
 )
 
 func TestDockerLib(t *testing.T) {

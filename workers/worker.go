@@ -1,9 +1,5 @@
 package workers
 
 //.
-type worker interface{
-
+type worker interface {
 }
-
-
-

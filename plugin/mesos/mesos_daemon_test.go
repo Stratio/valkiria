@@ -3,14 +3,14 @@ package mesos
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/Stratio/valkiria/dbus"
+	"github.com/Stratio/valkiria/plugin"
 	"github.com/Stratio/valkiria/test"
 	"os"
 	"testing"
-	"github.com/Stratio/valkiria/plugin"
 )
 
 const (
-	unit = "test.service"
+	unit            = "test.service"
 	fakeUnit        = "fakeUnit.service"
 	unitServicePath = "/tmp/test.service"
 	unitServiceLink = "/lib/systemd/system/test.service"

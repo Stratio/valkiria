@@ -2,14 +2,14 @@ package manager
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/Stratio/valkiria/test"
-	"testing"
 	"github.com/Stratio/valkiria/dbus"
+	"github.com/Stratio/valkiria/test"
 	"os"
+	"testing"
 )
 
-const(
-	unit 		= "test.service"
+const (
+	unit            = "test.service"
 	fakeUnit        = "fakeUnit.service"
 	unitServicePath = "/tmp/test.service"
 	unitServiceLink = "/lib/systemd/system/test.service"
@@ -19,10 +19,10 @@ var (
 	testManagerRead = func(t *testing.T) {
 		var manager = NewManager()
 		res, err := manager.Read()
-		if err != nil  {
+		if err != nil {
 			t.Fatal("Error reading process %v", err)
 		}
-		if len(res) < 1{
+		if len(res) < 1 {
 			t.Fatal("Error reading process")
 		}
 	}
@@ -32,7 +32,7 @@ var (
 		if len(err) > 0 {
 			t.Fatal("Error reading process %v", err)
 		}
-		if len(res) > 0{
+		if len(res) > 0 {
 			t.Fatal("Error reading process")
 		}
 	}
@@ -42,7 +42,7 @@ var (
 		if len(err) > 0 {
 			t.Fatal("Error reading process %v", err)
 		}
-		if len(res) < 1{
+		if len(res) < 1 {
 			t.Fatal("Error reading process")
 		}
 	}

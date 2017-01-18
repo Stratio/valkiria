@@ -4,16 +4,15 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/Stratio/valkiria/test"
 	"testing"
-
 )
 
-const(
+const (
 	killNameFake = "mesos-32156487435168416831"
 )
 
 var (
 	testKillService = func(t *testing.T) {
-		var d = Service{KillName: killNameFake, Pid:123456}
+		var d = Service{KillName: killNameFake, Pid: 123456}
 		err := d.Kill()
 		if err == nil {
 			t.Errorf("proc.testKillDaemon - Should be an error")

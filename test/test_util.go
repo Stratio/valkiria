@@ -21,7 +21,7 @@ const (
 	unitServicePath = "/tmp/test.service"
 	unitServiceLink = "/lib/systemd/system/test.service"
 	MesosName       = "mesos-32156487435168416831"
-	pathTest        = "/var/lib/mesos/slave/slaves/test/frameworks/test/executors/"+ MesosName +"/runs/test"
+	pathTest        = "/var/lib/mesos/slave/slaves/test/frameworks/test/executors/" + MesosName + "/runs/test"
 )
 
 const (

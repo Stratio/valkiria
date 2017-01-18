@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const(
+const (
 	fakeKillExecutor = "killExecutor=a"
 )
 

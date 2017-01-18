@@ -3,13 +3,13 @@ package mesos
 import (
 	"github.com/Stratio/valkiria/plugin"
 	"github.com/Stratio/valkiria/proc"
-	"strings"
-	"time"
 	"github.com/pkg/errors"
 	"regexp"
+	"strings"
+	"time"
 )
 
-const(
+const (
 	mesosMaster         = "dcos-mesos-master.service"
 	mesosAgentPublic    = "dcos-mesos-slave-public.service"
 	mesosAgent          = "dcos-mesos-slave.service"
@@ -17,13 +17,13 @@ const(
 	dcosZookeeper       = "dcos-exhibitor.service"
 	mesosAgentLogrotate = "mesos-logrotate"
 	mesosDockerExecutor = "mesos-docker-ex"
-	mesosHealthCheck = "mesos-health-ch"
-	dockerExecutor = "docker"
+	mesosHealthCheck    = "mesos-health-ch"
+	dockerExecutor      = "docker"
 )
 
-const(
-	all string = "0"
-	task string = "1"
+const (
+	all      string = "0"
+	task     string = "1"
 	executor string = "2"
 )
 
@@ -34,17 +34,17 @@ type MesosConfig struct {
 	BlackListServices          []string
 }
 
-func NewMesosConfig () *MesosConfig{
+func NewMesosConfig() *MesosConfig {
 	return &MesosConfig{
-		DaemonConfigString: []string{mesosMaster, mesosAgentPublic, mesosAgent, dcosMarathon, dcosZookeeper},
+		DaemonConfigString:         []string{mesosMaster, mesosAgentPublic, mesosAgent, dcosMarathon, dcosZookeeper},
 		DaemonListForChildServices: []string{mesosAgent, mesosAgentPublic},
-		DockerConfigPattern: "^\\/mesos-.*",
-		BlackListServices: []string{mesosAgentLogrotate, mesosDockerExecutor, dockerExecutor, mesosHealthCheck},
+		DockerConfigPattern:        "^\\/mesos-.*",
+		BlackListServices:          []string{mesosAgentLogrotate, mesosDockerExecutor, dockerExecutor, mesosHealthCheck},
 	}
 }
 
-func (m *MesosConfig) FindAndKill()(func ([]plugin.Process, string, string)([]plugin.Process, []error)){
-	return func (processList []plugin.Process, name string, properties string)([]plugin.Process, []error){
+func (m *MesosConfig) FindAndKill() func([]plugin.Process, string, string) ([]plugin.Process, []error) {
+	return func(processList []plugin.Process, name string, properties string) ([]plugin.Process, []error) {
 		var process []plugin.Process
 		var errorList []error
 		//.
@@ -54,8 +54,8 @@ func (m *MesosConfig) FindAndKill()(func ([]plugin.Process, string, string)([]pl
 			return nil, errorList
 		}
 		var err error
-		for _, pro := range processList{
-			switch pro.(type){
+		for _, pro := range processList {
+			switch pro.(type) {
 			case *proc.Daemon:
 				if pro.(*proc.Daemon).KillName == name {
 					err = pro.Kill()
@@ -74,33 +74,33 @@ func (m *MesosConfig) FindAndKill()(func ([]plugin.Process, string, string)([]pl
 				}
 			case *proc.Service:
 				if pro.(*proc.Service).KillName == name {
-						switch strings.Split(properties, "=")[1]{
-						case all:
+					switch strings.Split(properties, "=")[1] {
+					case all:
+						err = pro.Kill()
+						if err == nil {
+							pro.(*proc.Service).ChaosTimeStamp = time.Now().UnixNano()
+							process = append(process, pro)
+						}
+					case task:
+						if !pro.(*proc.Service).Executor {
 							err = pro.Kill()
 							if err == nil {
 								pro.(*proc.Service).ChaosTimeStamp = time.Now().UnixNano()
 								process = append(process, pro)
 							}
-						case task:
-							if !pro.(*proc.Service).Executor {
-								err = pro.Kill()
-								if err == nil {
-									pro.(*proc.Service).ChaosTimeStamp = time.Now().UnixNano()
-									process = append(process, pro)
-								}
-							}
-						case executor:
-							if pro.(*proc.Service).Executor {
-								err = pro.Kill()
-								if err == nil {
-									pro.(*proc.Service).ChaosTimeStamp = time.Now().UnixNano()
-									process = append(process, pro)
-								}
+						}
+					case executor:
+						if pro.(*proc.Service).Executor {
+							err = pro.Kill()
+							if err == nil {
+								pro.(*proc.Service).ChaosTimeStamp = time.Now().UnixNano()
+								process = append(process, pro)
 							}
 						}
+					}
 				}
 			}
-			if err != nil{
+			if err != nil {
 				errorList = append(errorList, err)
 			}
 		}
