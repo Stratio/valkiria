@@ -9,9 +9,9 @@ if [ -d "$GOPATH" ]; then
     cd $GOPATH/src/github.com/Stratio/valkiria
     $GOPATH/bin/godep go test -v -coverprofile=coverageDbus.out ./dbus | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportDbus.xml
     $GOPATH/bin/godep go test -v -coverprofile=coverageProc.out ./proc | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportProc.xml
-    $GOPATH/bin/godep go test -v -coverprofile=coveragePlugin.out ./proc | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportPlugin.xml
-    $GOPATH/bin/godep go test -v -coverprofile=coverageManager.out ./proc | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportManager.xml
-    $GOPATH/bin/godep go test -v -coverprofile=coverageWorkers.out ./proc | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportWorkers.xml
+    $GOPATH/bin/godep go test -v -coverprofile=coveragePlugin.out ./plugin | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportPlugin.xml
+    $GOPATH/bin/godep go test -v -coverprofile=coverageManager.out ./manager | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportManager.xml
+    $GOPATH/bin/godep go test -v -coverprofile=coverageWorkers.out ./workers | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportWorkers.xml
 #    $GOPATH/bin/godep go test -v -coverprofile=coverageRoutes.out ./routes | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportRoutes.xml
 #    $GOPATH/bin/godep go test -v -coverprofile=coverageValkiria.out ./valkiria | $GOPATH/bin/go-junit-report > $SUREFIRE_REPORTS_PATH/reportValkiria.xml
 
