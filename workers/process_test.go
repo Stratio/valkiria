@@ -3,6 +3,7 @@ package workers
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/Stratio/valkiria/test"
+	"github.com/Stratio/valkiria/dbus"
 	"testing"
 )
 
@@ -51,6 +52,7 @@ func TestWorkerReadLib(t *testing.T) {
 	log.SetLevel(test.Level)
 	test.SetupDBusTest(t)
 	test.SetupDockerTest(t)
+	dbus.DbusInstance.NewDBus()
 	defer test.TearDownDockerTest(t)
 	defer test.TearDownDBusTest(t)
 	t.Run("testProcessWorkerKill", testProcessWorkerKill)
